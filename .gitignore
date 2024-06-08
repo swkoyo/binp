@@ -18,6 +18,7 @@
 # vendor/
 tmp/
 .env
+views/*_templ.go
 
 # Go workspace file
 go.work
