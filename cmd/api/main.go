@@ -1,7 +1,6 @@
 package main
 
 import (
-	"binp/common"
 	"log"
 	"os"
 
@@ -16,19 +15,7 @@ func main() {
 	}
 
 	e := echo.New()
-
-	logger := common.NewLogger()
-	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
-		LogURI:    true,
-		LogStatus: true,
-		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
-			logger.Info().
-				Str("URI", v.URI).
-				Int("status", v.Status).
-				Msg("request")
-			return nil
-		},
-	}))
+	e.Use(middleware.Logger())
 
 	e.GET("/", func(c echo.Context) error {
 		return c.JSON(200, map[string]string{"message": "Hello, World!"})
