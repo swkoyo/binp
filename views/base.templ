@@ -5,11 +5,15 @@ templ Base(name string) {
 	<html lang="en">
 		<head>
 			<meta charset="utf-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1"/>
 			<title>binp</title>
+			<script src="https://unpkg.com/htmx.org@1.9.12"></script>
+			<script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
+			<link rel="stylesheet" href="css/output.css" />
 		</head>
-		<body>
+		<body class="dark bg-white dark:bg-slate-900">
 			<main>
-				<div>Hello, { name }!</div>
+				<div class="dark:text-white">Hello, { name }!</div>
 			</main>
 		</body>
 	</html>

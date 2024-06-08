@@ -19,6 +19,7 @@
 tmp/
 .env
 views/*_templ.go
+views/*_templ.txt
 
 # Go workspace file
 go.work

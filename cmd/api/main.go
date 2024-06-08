@@ -30,6 +30,7 @@ func main() {
 
 	e := echo.New()
 	e.Use(middleware.Logger())
+	e.Static("/css", "views/css")
 
 	e.GET("/", func(c echo.Context) error {
 		return Render(c, http.StatusOK, views.Base("world"))
