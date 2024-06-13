@@ -1,6 +1,8 @@
 package main
 
 import (
+	"binp/models"
+	"binp/storage"
 	"binp/views"
 	"log"
 	"net/http"
@@ -28,12 +30,41 @@ func main() {
 		log.Fatal(err)
 	}
 
+	dbStore, err := storage.GetDatabaseStore()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if err := dbStore.Init(); err != nil {
+		log.Fatal(err)
+	}
+
 	e := echo.New()
 	e.Use(middleware.Logger())
 	e.Static("/css", "views/css")
 
 	e.GET("/", func(c echo.Context) error {
-		return Render(c, http.StatusOK, views.Base("world"))
+		return Render(c, http.StatusOK, views.Index(nil))
+	})
+
+	e.GET("/:id", func(c echo.Context) error {
+		id := c.Param("id")
+		snippet, err := models.GetSnippetByID(id)
+		if err != nil {
+			return err
+		}
+		return Render(c, http.StatusOK, views.Index(snippet))
+	})
+
+	e.POST("/snippet", func(c echo.Context) error {
+		text := c.FormValue("text")
+		snippet, err := models.CreateSnippet(text)
+		if err != nil {
+			return err
+		}
+		c.Response().Header().Set("HX-Redirect", "/"+snippet.Id)
+		c.Response().WriteHeader(http.StatusOK)
+		return nil
 	})
 
 	e.Logger.Fatal(e.Start(":" + os.Getenv("PORT")))

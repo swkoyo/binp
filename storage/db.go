@@ -4,14 +4,18 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"sync"
 
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
 type DatabaseStore struct {
-	client *sql.DB
+	Client *sql.DB
 }
+
+var singleton *DatabaseStore
+var once sync.Once
 
 func NewDatabaseStore() (*DatabaseStore, error) {
 	err := godotenv.Load()
@@ -35,8 +39,16 @@ func NewDatabaseStore() (*DatabaseStore, error) {
 	}
 
 	return &DatabaseStore{
-		client: db,
+		Client: db,
 	}, nil
+}
+
+func GetDatabaseStore() (*DatabaseStore, error) {
+	var err error
+	once.Do(func() {
+		singleton, err = NewDatabaseStore()
+	})
+	return singleton, err
 }
 
 func (s *DatabaseStore) Init() error {
@@ -52,6 +64,6 @@ func (s *DatabaseStore) createSnippetTable() error {
             created_at TIMESTAMP NOT NULL DEFAULT NOW()
         )
     `
-	_, err := s.client.Exec(query)
+	_, err := s.Client.Exec(query)
 	return err
 }

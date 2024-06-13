@@ -1,6 +1,10 @@
 package views
 
-templ Base(name string) {
+import (
+	"binp/models"
+)
+
+templ BaseLayout() {
 	<!DOCTYPE html>
 	<html lang="en">
 		<head>
@@ -9,12 +13,27 @@ templ Base(name string) {
 			<title>binp</title>
 			<script src="https://unpkg.com/htmx.org@1.9.12"></script>
 			<script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
-			<link rel="stylesheet" href="css/output.css" />
+			<link rel="stylesheet" href="css/output.css"/>
 		</head>
-		<body class="dark bg-white dark:bg-slate-900">
-			<main>
-				<div class="dark:text-white">Hello, { name }!</div>
-			</main>
+		<body class="dark bg-white dark:bg-slate-900 text-black dark:text-white container mx-auto">
+			{ children... }
 		</body>
 	</html>
+}
+
+templ Index(snippet *models.Snippet) {
+	@BaseLayout() {
+		if snippet != nil {
+			<div class="w-full">
+				<pre class="bg-white dark:bg-slate-900">{ snippet.Text }</pre>
+			</div>
+		} else {
+			<div class="w-full">
+				<form hx-post="/snippet">
+					<textarea name="text" class="w-full h-80 bg-white dark:bg-slate-900"></textarea>
+					<button class="bg-black" type="submit">Submit</button>
+				</form>
+			</div>
+		}
+	}
 }
