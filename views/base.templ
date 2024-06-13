@@ -15,7 +15,8 @@ templ BaseLayout() {
 			<script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
 			<link rel="stylesheet" href="css/output.css"/>
 		</head>
-		<body class="dark bg-white dark:bg-slate-900 text-black dark:text-white container mx-auto">
+		<body class="dark bg-white dark:bg-black text-black dark:text-white container mx-auto">
+			@Navbar()
 			{ children... }
 		</body>
 	</html>
@@ -25,15 +26,25 @@ templ Index(snippet *models.Snippet) {
 	@BaseLayout() {
 		if snippet != nil {
 			<div class="w-full">
-				<pre class="bg-white dark:bg-slate-900">{ snippet.Text }</pre>
+				<pre class="bg-white dark:bg-black">{ snippet.Text }</pre>
 			</div>
 		} else {
 			<div class="w-full">
 				<form hx-post="/snippet">
-					<textarea name="text" class="w-full h-80 bg-white dark:bg-slate-900"></textarea>
-					<button class="bg-black" type="submit">Submit</button>
+					<textarea name="text" class="w-full h-80 bg-white dark:bg-black"></textarea>
+					<button class="bg-blue-500" type="submit">Submit</button>
 				</form>
 			</div>
 		}
 	}
+}
+
+templ Navbar() {
+	<nav class="bg-white dark:bg-black">
+		<div class="container mx-auto">
+			<div class="flex justify-between items-center py-5">
+				<a href="/" class="text-black dark:text-white">binp</a>
+			</div>
+		</div>
+	</nav>
 }
