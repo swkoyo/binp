@@ -1,9 +1,19 @@
 package views
 
+import "binp/storage"
+
 templ Index() {
 	@Base() {
 		<div class="w-full">
 			@SnippetForm()
+		</div>
+	}
+}
+
+templ SnippetPage(snippet *storage.Snippet) {
+	@Base() {
+		<div class="w-full">
+			<pre><code>{ snippet.Text }</code></pre>
 		</div>
 	}
 }

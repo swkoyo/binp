@@ -19,12 +19,12 @@ func (s *Server) HandleGetIndex(c echo.Context) error {
 }
 
 func (s *Server) HandleGetSnippet(c echo.Context) error {
-	// id := c.Param("id")
-	// snippet, err := s.store.GetSnippetByID(id)
-	// if err != nil {
-	// 	return err
-	// }
-	return Render(c, http.StatusOK, views.Index())
+	id := c.Param("id")
+	snippet, err := s.store.GetSnippetByID(id)
+	if err != nil {
+		return err
+	}
+	return Render(c, http.StatusOK, views.SnippetPage(snippet))
 }
 
 func (s *Server) HandlePostSnippet(c echo.Context) error {
