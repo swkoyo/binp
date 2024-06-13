@@ -20,6 +20,7 @@ tmp/
 .env
 views/*_templ.go
 views/*_templ.txt
+views/css/output.css
 
 # Go workspace file
 go.work
