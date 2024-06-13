@@ -2,6 +2,7 @@ package server
 
 import (
 	"binp/views"
+	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -36,7 +37,7 @@ func (s *Server) HandlePostSnippet(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	c.Response().Header().Set("HX-Redirect", "/"+snippet.Id)
+	c.Response().Header().Set("HX-Redirect", fmt.Sprintf("/%s", snippet.ID))
 	c.Response().WriteHeader(http.StatusOK)
 	return nil
 }

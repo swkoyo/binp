@@ -7,8 +7,8 @@ import (
 )
 
 type Snippet struct {
-	Pk        int       `json:"-"`
-	Id        string    `json:"id"`
+	PK        int       `json:"-"`
+	ID        string    `json:"id"`
 	Text      string    `json:"text"`
 	CreatedAt time.Time `json:"created_at"`
 }
@@ -57,7 +57,7 @@ func (s *Store) GetSnippetByID(id string) (*Snippet, error) {
 	`
 	row := s.db.client.QueryRow(query, id)
 	var snippet Snippet
-	err := row.Scan(&snippet.Pk, &snippet.Id, &snippet.Text, &snippet.CreatedAt)
+	err := row.Scan(&snippet.PK, &snippet.ID, &snippet.Text, &snippet.CreatedAt)
 	if err != nil {
 		return nil, err
 	}
