@@ -1,42 +1,106 @@
 package storage
 
 import (
+	"database/sql"
 	"time"
 
 	gonanoid "github.com/matoous/go-nanoid"
 )
 
 type Snippet struct {
-	PK        int       `json:"-"`
-	ID        string    `json:"id"`
-	Text      string    `json:"text"`
-	CreatedAt time.Time `json:"created_at"`
+	PK            int       `json:"-"`
+	ID            string    `json:"id"`
+	Text          string    `json:"text"`
+	BurnAfterRead bool      `json:"burn_after_read"`
+	CreatedAt     time.Time `json:"created_at"`
+	ExpiresAt     time.Time `json:"expires_at"`
 }
 
-func (s *Store) createSnippetTable() error {
-	query := `
-        CREATE TABLE IF NOT EXISTS snippet (
-            pk SERIAL PRIMARY KEY,
-            id VARCHAR(50) UNIQUE NOT NULL,
-            text TEXT NOT NULL,
-            created_at TIMESTAMP NOT NULL DEFAULT NOW()
-        )
-    `
-	_, err := s.db.client.Exec(query)
-	return err
+type SnippetExpirationChoice struct {
+	Label string
+	Value string
+}
+type SnippetExpiration int
+
+const (
+	Never SnippetExpiration = iota
+	BurnAfter
+	OneHour
+	OneDay
+	OneWeek
+	OneMonth
+)
+
+func GetSnippetExpiration(value string) SnippetExpiration {
+	switch value {
+	case "never":
+		return Never
+	case "burn_after":
+		return BurnAfter
+	case "one_hour":
+		return OneHour
+	case "one_day":
+		return OneDay
+	case "one_week":
+		return OneWeek
+	case "one_month":
+		return OneMonth
+	default:
+		return Never
+	}
 }
 
-func (s *Store) CreateSnippet(text string) (*Snippet, error) {
+func GetSnippetExpirationChoices() []SnippetExpirationChoice {
+	return []SnippetExpirationChoice{
+		{"Never", "never"},
+		{"Burn After Read", "burn_after"},
+		{"One Hour", "one_hour"},
+		{"One Day", "one_day"},
+		{"One Week", "one_week"},
+		{"One Month", "one_month"},
+	}
+}
+
+func (s SnippetExpiration) GetExpirationTime() *time.Time {
+	switch s {
+	case OneHour:
+		t := time.Now().Add(time.Hour)
+		return &t
+	case OneDay:
+		t := time.Now().Add(time.Hour * 24)
+		return &t
+	case OneWeek:
+		t := time.Now().Add(time.Hour * 24 * 7)
+		return &t
+	case OneMonth:
+		t := time.Now().Add(time.Hour * 24 * 30)
+		return &t
+	default:
+		return nil
+	}
+}
+
+func (s *Store) CreateSnippet(text string, expiry SnippetExpiration) (*Snippet, error) {
 	id, err := gonanoid.Nanoid()
 	if err != nil {
 		return nil, err
 	}
 
+	expiresAt := sql.NullTime{}
+	if expirationTime := expiry.GetExpirationTime(); expirationTime != nil {
+		expiresAt.Time = *expirationTime
+		expiresAt.Valid = true
+	}
+	burnAfterRead := false
+	if expiry == BurnAfter {
+		burnAfterRead = true
+	}
+
 	query := `
-        INSERT INTO snippet (id, text)
-        VALUES ($1, $2)
+        INSERT INTO snippet (id, text, burn_after_read, expires_at)
+        VALUES ($1, $2, $3, $4)
     `
-	_, err = s.db.client.Exec(query, id, text)
+	_, err = s.db.client.Exec(query, id, text, burnAfterRead, expiresAt)
 	if err != nil {
 		return nil, err
 	}
@@ -51,15 +115,19 @@ func (s *Store) CreateSnippet(text string) (*Snippet, error) {
 
 func (s *Store) GetSnippetByID(id string) (*Snippet, error) {
 	query := `
-		SELECT pk, id, text, created_at
+		SELECT pk, id, text, burn_after_read, expires_at, created_at
 		FROM snippet
 		WHERE id = $1
 	`
 	row := s.db.client.QueryRow(query, id)
 	var snippet Snippet
-	err := row.Scan(&snippet.PK, &snippet.ID, &snippet.Text, &snippet.CreatedAt)
+	var expiresAt sql.NullTime
+	err := row.Scan(&snippet.PK, &snippet.ID, &snippet.Text, &snippet.BurnAfterRead, &expiresAt, &snippet.CreatedAt)
 	if err != nil {
 		return nil, err
+	}
+	if expiresAt.Valid {
+		snippet.ExpiresAt = expiresAt.Time
 	}
 	return &snippet, nil
 }

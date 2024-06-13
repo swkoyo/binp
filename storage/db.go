@@ -34,17 +34,18 @@ func NewDB() (*DBStore, error) {
 }
 
 func (s *DBStore) Init() error {
-	_, err := s.client.Exec(`
-        CREATE TABLE IF NOT EXISTS users (
-            id SERIAL PRIMARY KEY,
-            username TEXT NOT NULL,
-            password TEXT NOT NULL
-        );
-    `)
-	if err != nil {
-		return err
-	}
-	return nil
+	query := `
+        CREATE TABLE IF NOT EXISTS snippet (
+            pk SERIAL PRIMARY KEY,
+            id VARCHAR(50) UNIQUE NOT NULL,
+            text TEXT NOT NULL,
+			burn_after_read BOOLEAN NOT NULL DEFAULT FALSE,
+			expires_at TIMESTAMPTZ DEFAULT NULL,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        )
+    `
+	_, err := s.client.Exec(query)
+	return err
 }
 
 func (s *DBStore) Close() error {

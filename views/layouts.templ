@@ -1,10 +1,6 @@
 package views
 
-import (
-	"binp/storage"
-)
-
-templ BaseLayout() {
+templ Base() {
 	<!DOCTYPE html>
 	<html lang="en">
 		<head>
@@ -20,23 +16,6 @@ templ BaseLayout() {
 			{ children... }
 		</body>
 	</html>
-}
-
-templ Index(snippet *storage.Snippet) {
-	@BaseLayout() {
-		if snippet != nil {
-			<div class="w-full">
-				<pre class="bg-white dark:bg-black">{ snippet.Text }</pre>
-			</div>
-		} else {
-			<div class="w-full">
-				<form hx-post="/snippet">
-					<textarea name="text" class="w-full h-80 bg-white dark:bg-black"></textarea>
-					<button class="bg-blue-500" type="submit">Submit</button>
-				</form>
-			</div>
-		}
-	}
 }
 
 templ Navbar() {
