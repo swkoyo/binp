@@ -1,7 +1,8 @@
 package storage
 
 type Store struct {
-	db *DBStore
+	db    *DBStore
+	cache *CacheStore
 }
 
 func NewStore() (*Store, error) {
@@ -10,8 +11,11 @@ func NewStore() (*Store, error) {
 		return nil, err
 	}
 
+	cacheStore := NewCache()
+
 	return &Store{
-		db: dbStore,
+		db:    dbStore,
+		cache: cacheStore,
 	}, nil
 }
 

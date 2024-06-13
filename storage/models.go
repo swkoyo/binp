@@ -114,6 +114,9 @@ func (s *Store) CreateSnippet(text string, expiry SnippetExpiration) (*Snippet, 
 }
 
 func (s *Store) GetSnippetByID(id string) (*Snippet, error) {
+	if snippet := s.cache.client.Get(id); snippet != nil {
+		return snippet, nil
+	}
 	query := `
 		SELECT pk, id, text, burn_after_read, expires_at, created_at
 		FROM snippet
@@ -129,5 +132,6 @@ func (s *Store) GetSnippetByID(id string) (*Snippet, error) {
 	if expiresAt.Valid {
 		snippet.ExpiresAt = expiresAt.Time
 	}
+	s.cache.client.Put(id, &snippet)
 	return &snippet, nil
 }
