@@ -7,8 +7,8 @@ require (
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.12.0
-	github.com/lib/pq v1.10.9
 	github.com/matoous/go-nanoid v1.5.0
+	github.com/mattn/go-sqlite3 v1.14.22
 	github.com/robfig/cron/v3 v3.0.1
 )
 

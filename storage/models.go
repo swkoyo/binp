@@ -89,10 +89,9 @@ func (s *Store) CreateSnippet(text string, expiry SnippetExpiration) (*Snippet, 
 		return nil, err
 	}
 
-	expiresAt := sql.NullTime{}
+	var expiresAt *time.Time
 	if expirationTime := expiry.GetExpirationTime(); expirationTime != nil {
-		expiresAt.Time = *expirationTime
-		expiresAt.Valid = true
+		expiresAt = expirationTime
 	}
 	burnAfterRead := false
 	if expiry == BurnAfter {
@@ -101,7 +100,7 @@ func (s *Store) CreateSnippet(text string, expiry SnippetExpiration) (*Snippet, 
 
 	query := `
         INSERT INTO snippet (id, text, burn_after_read, expires_at)
-        VALUES ($1, $2, $3, $4)
+        VALUES (?, ?, ?, ?)
     `
 	_, err = s.db.client.Exec(query, id, text, burnAfterRead, expiresAt)
 	if err != nil {
@@ -123,7 +122,7 @@ func (s *Store) GetSnippetByID(id string) (*Snippet, error) {
 	query := `
 		SELECT pk, id, text, burn_after_read, is_read, expires_at, created_at
 		FROM snippet
-		WHERE id = $1
+		WHERE id = ?
 	`
 	row := s.db.client.QueryRow(query, id)
 	var snippet Snippet
@@ -145,8 +144,8 @@ func (s *Store) GetSnippetByID(id string) (*Snippet, error) {
 func (s *Store) SetSnippetIsRead(snippetID string) error {
 	query := `
 		UPDATE snippet
-		SET is_read = TRUE
-		WHERE id = $1
+		SET is_read = 1
+		WHERE id = ?
 	`
 	_, err := s.db.client.Exec(query, snippetID)
 	s.cache.client.Delete(snippetID)
@@ -156,7 +155,7 @@ func (s *Store) SetSnippetIsRead(snippetID string) error {
 func (s *Store) DeleteSnippet(id string) error {
 	query := `
 		DELETE FROM snippet
-		WHERE id = $1
+		WHERE id = ?
 	`
 	_, err := s.db.client.Exec(query, id)
 	if err != nil {
@@ -170,7 +169,7 @@ func (s *Store) GetExpiredSnippetIDs() ([]string, error) {
 	query := `
 		SELECT id
 		FROM snippet
-		WHERE expires_at <= NOW()
+		WHERE expires_at <= datetime('now')
 	`
 	rows, err := s.db.client.Query(query)
 	if err != nil {
@@ -200,7 +199,7 @@ func (s *Store) DeleteExpiredSnippets() error {
 
 	placeholders := make([]string, len(ids))
 	for i := range ids {
-		placeholders[i] = fmt.Sprintf("$%d", i+1)
+		placeholders[i] = "?"
 	}
 
 	query := fmt.Sprintf(`
