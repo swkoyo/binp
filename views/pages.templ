@@ -4,6 +4,7 @@ import "binp/storage"
 
 templ Index() {
 	@Base() {
+		@Navbar(nil)
 		<div class="w-full">
 			@SnippetForm()
 		</div>
@@ -12,8 +13,17 @@ templ Index() {
 
 templ SnippetPage(snippet *storage.Snippet) {
 	@Base() {
+		@Navbar(snippet)
 		<div class="w-full">
-			<pre><code>{ snippet.Text }</code></pre>
+			<pre><code id="snippet">{ snippet.Text }</code></pre>
+			<button
+				class="rounded bg-blue-500 px-2"
+				_="on click
+					writeText(#snippet.innerText) into the navigator's clipboard
+				"
+			>
+				Copy
+			</button>
 		</div>
 	}
 }

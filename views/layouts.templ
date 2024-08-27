@@ -1,5 +1,7 @@
 package views
 
+import "binp/storage"
+
 templ Base() {
 	<!DOCTYPE html>
 	<html lang="en">
@@ -12,17 +14,19 @@ templ Base() {
 			<link rel="stylesheet" href="css/output.css"/>
 		</head>
 		<body class="dark bg-white dark:bg-black text-black dark:text-white container mx-auto">
-			@Navbar()
 			{ children... }
 		</body>
 	</html>
 }
 
-templ Navbar() {
-	<nav class="bg-white dark:bg-black">
+templ Navbar(snippet *storage.Snippet) {
+	<nav id="navbar" class="bg-white dark:bg-black">
 		<div class="container mx-auto">
 			<div class="flex justify-between items-center py-5">
 				<a href="/" class="text-black dark:text-white">binp</a>
+				if snippet != nil {
+					<p>{ snippet.ID }</p>
+				}
 			</div>
 		</div>
 	</nav>
