@@ -2,6 +2,8 @@ package storage
 
 import (
 	"database/sql"
+	"fmt"
+	"strings"
 	"time"
 
 	gonanoid "github.com/matoous/go-nanoid"
@@ -161,5 +163,64 @@ func (s *Store) DeleteSnippet(id string) error {
 		return err
 	}
 	s.cache.client.Delete(id)
+	return nil
+}
+
+func (s *Store) GetExpiredSnippetIDs() ([]string, error) {
+	query := `
+		SELECT id
+		FROM snippet
+		WHERE expires_at <= NOW()
+	`
+	rows, err := s.db.client.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var ids []string
+	for rows.Next() {
+		var id string
+		err := rows.Scan(&id)
+		if err != nil {
+			return nil, err
+		}
+		ids = append(ids, id)
+	}
+	return ids, nil
+}
+
+func (s *Store) DeleteExpiredSnippets() error {
+	ids, err := s.GetExpiredSnippetIDs()
+	if err != nil {
+		return err
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+
+	placeholders := make([]string, len(ids))
+	for i := range ids {
+		placeholders[i] = fmt.Sprintf("$%d", i+1)
+	}
+
+	query := fmt.Sprintf(`
+		DELETE FROM snippet
+		WHERE id IN (%s)
+	`, strings.Join(placeholders, ", "))
+
+	args := make([]interface{}, len(ids))
+	for i, id := range ids {
+		args[i] = id
+	}
+
+	_, err = s.db.client.Exec(query, args...)
+	if err != nil {
+		return err
+	}
+
+	for _, id := range ids {
+		s.cache.client.Delete(id)
+	}
+
 	return nil
 }
