@@ -30,12 +30,10 @@ func (s *Server) HandleGetSnippet(c echo.Context) error {
 			return err
 		}
 		snippet.IsRead = true
-	} else {
-		if snippet.BurnAfterRead {
-			err = s.store.DeleteSnippet(id)
-			if err != nil {
-				return err
-			}
+	} else if snippet.BurnAfterRead {
+		err = s.store.DeleteSnippet(id)
+		if err != nil {
+			return err
 		}
 	}
 	return Render(c, http.StatusOK, views.SnippetPage(snippet))
