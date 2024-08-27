@@ -12,6 +12,7 @@ type Snippet struct {
 	ID            string    `json:"id"`
 	Text          string    `json:"text"`
 	BurnAfterRead bool      `json:"burn_after_read"`
+	IsRead        bool      `json:"is_read"`
 	CreatedAt     time.Time `json:"created_at"`
 	ExpiresAt     time.Time `json:"expires_at"`
 }
@@ -118,14 +119,14 @@ func (s *Store) GetSnippetByID(id string) (*Snippet, error) {
 		return snippet, nil
 	}
 	query := `
-		SELECT pk, id, text, burn_after_read, expires_at, created_at
+		SELECT pk, id, text, burn_after_read, is_read, expires_at, created_at
 		FROM snippet
 		WHERE id = $1
 	`
 	row := s.db.client.QueryRow(query, id)
 	var snippet Snippet
 	var expiresAt sql.NullTime
-	err := row.Scan(&snippet.PK, &snippet.ID, &snippet.Text, &snippet.BurnAfterRead, &expiresAt, &snippet.CreatedAt)
+	err := row.Scan(&snippet.PK, &snippet.ID, &snippet.Text, &snippet.BurnAfterRead, &snippet.IsRead, &expiresAt, &snippet.CreatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -134,4 +135,28 @@ func (s *Store) GetSnippetByID(id string) (*Snippet, error) {
 	}
 	s.cache.client.Put(id, &snippet)
 	return &snippet, nil
+}
+
+func (s *Store) SetSnippetIsRead(snippetID string) error {
+	query := `
+		UPDATE snippet
+		SET is_read = TRUE
+		WHERE id = $1
+	`
+	_, err := s.db.client.Exec(query, snippetID)
+	s.cache.client.Delete(snippetID)
+	return err
+}
+
+func (s *Store) DeleteSnippet(id string) error {
+	query := `
+		DELETE FROM snippet
+		WHERE id = $1
+	`
+	_, err := s.db.client.Exec(query, id)
+	if err != nil {
+		return err
+	}
+	s.cache.client.Delete(id)
+	return nil
 }

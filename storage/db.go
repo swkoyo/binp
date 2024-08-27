@@ -40,6 +40,7 @@ func (s *DBStore) Init() error {
             id VARCHAR(50) UNIQUE NOT NULL,
             text TEXT NOT NULL,
 			burn_after_read BOOLEAN NOT NULL DEFAULT FALSE,
+			is_read BOOLEAN NOT NULL DEFAULT FALSE,
 			expires_at TIMESTAMPTZ DEFAULT NULL,
             created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         )
