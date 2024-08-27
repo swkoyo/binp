@@ -27,3 +27,15 @@ templ SnippetPage(snippet *storage.Snippet) {
 		</div>
 	}
 }
+
+templ NotFoundPage() {
+	@Base() {
+		@Navbar(nil)
+		<div class="w-full">
+			<div class="text-center">
+				<h1 class="text-2xl">404</h1>
+				<p>Bottom text</p>
+			</div>
+		</div>
+	}
+}

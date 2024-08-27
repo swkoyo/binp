@@ -128,6 +128,9 @@ func (s *Store) GetSnippetByID(id string) (*Snippet, error) {
 	var expiresAt sql.NullTime
 	err := row.Scan(&snippet.PK, &snippet.ID, &snippet.Text, &snippet.BurnAfterRead, &snippet.IsRead, &expiresAt, &snippet.CreatedAt)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
 		return nil, err
 	}
 	if expiresAt.Valid {

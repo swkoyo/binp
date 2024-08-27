@@ -24,6 +24,9 @@ func (s *Server) HandleGetSnippet(c echo.Context) error {
 	if err != nil {
 		return err
 	}
+	if snippet == nil {
+		return Render(c, http.StatusNotFound, views.NotFoundPage())
+	}
 	if !snippet.IsRead {
 		err = s.store.SetSnippetIsRead(id)
 		if err != nil {
