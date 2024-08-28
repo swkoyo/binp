@@ -15,6 +15,7 @@ type PostSnippetReq struct {
 }
 
 func (s *Server) HandleGetIndex(c echo.Context) error {
+	c.Logger().Info("Index page requested")
 	return Render(c, http.StatusOK, views.Index())
 }
 

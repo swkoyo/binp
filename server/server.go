@@ -24,17 +24,20 @@ type CustomValidator struct {
 
 func NewServer(s *storage.Store) Server {
 	logger.InitLogger()
-	log := logger.GetLogger()
 	e := echo.New()
 	e.Validator = &CustomValidator{validator: validator.New()}
+
+	e.Logger = logger.GetEchoLogger()
+
 	e.Use(middleware.RequestID())
-	e.Use(logger.HTTPLogger())
+	e.Use(logger.CustomLoggerMiddleware())
+	e.Use(middleware.Recover())
+
 	e.Static("/css", "views/css")
 
 	server := Server{
 		store: s,
 		echo:  e,
-		log:   log,
 	}
 
 	e.GET("/", server.HandleGetIndex)
