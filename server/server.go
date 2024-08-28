@@ -1,6 +1,7 @@
 package server
 
 import (
+	"binp/logger"
 	"binp/storage"
 	"fmt"
 
@@ -8,11 +9,13 @@ import (
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/rs/zerolog"
 )
 
 type Server struct {
 	store *storage.Store
 	echo  *echo.Echo
+	log   *zerolog.Logger
 }
 
 type CustomValidator struct {
@@ -20,14 +23,18 @@ type CustomValidator struct {
 }
 
 func NewServer(s *storage.Store) Server {
+	logger.InitLogger()
+	log := logger.GetLogger()
 	e := echo.New()
 	e.Validator = &CustomValidator{validator: validator.New()}
-	e.Use(middleware.Logger())
+	e.Use(middleware.RequestID())
+	e.Use(logger.HTTPLogger())
 	e.Static("/css", "views/css")
 
 	server := Server{
 		store: s,
 		echo:  e,
+		log:   log,
 	}
 
 	e.GET("/", server.HandleGetIndex)

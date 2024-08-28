@@ -1,7 +1,8 @@
 package main
 
 import (
-	serv "binp/server"
+	"binp/logger"
+	"binp/server"
 	"binp/storage"
 	"log"
 	"os"
@@ -14,15 +15,21 @@ func main() {
 		log.Fatal(err)
 	}
 
+	logger.InitLogger()
+	log := logger.GetLogger()
+
 	store, err := storage.NewStore()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err).Msg("Failed to create new store")
 	}
 
 	if err := store.Init(); err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err).Msg("Failed to initalize store")
 	}
 
-	server := serv.NewServer(store)
-	server.Start(os.Getenv("PORT"))
+	serv := server.NewServer(store)
+	log.Info().Str("port", os.Getenv("PORT")).Msg("Server created. Starting...")
+	if err := serv.Start(os.Getenv("PORT")); err != nil {
+		log.Fatal().Err(err).Msg("Failed to start server")
+	}
 }
