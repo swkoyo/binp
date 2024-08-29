@@ -29,15 +29,15 @@ func NewDB() (*DBStore, error) {
 
 func (s *DBStore) Init() error {
 	query := `
-        CREATE TABLE IF NOT EXISTS snippet (
-            pk INTEGER PRIMARY KEY AUTOINCREMENT,
-            id TEXT UNIQUE NOT NULL,
-            text TEXT NOT NULL,
+		CREATE TABLE IF NOT EXISTS snippet (
+			pk INTEGER PRIMARY KEY AUTOINCREMENT,
+			id TEXT UNIQUE NOT NULL,
+			text TEXT NOT NULL,
 			burn_after_read INTEGER NOT NULL DEFAULT 0,
 			is_read INTEGER NOT NULL DEFAULT 0,
 			expires_at DATETIME DEFAULT NULL,
-            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
+			created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+		);
 		CREATE INDEX IF NOT EXISTS idx_snippet_expires_at ON snippet(expires_at);
     `
 	_, err := s.client.Exec(query)
