@@ -20,7 +20,7 @@ tmp/
 .env
 views/*_templ.go
 views/*_templ.txt
-views/css/output.css
+static/css/output.css
 node_modules/
 
 # Go workspace file

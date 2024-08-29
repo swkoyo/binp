@@ -2,17 +2,20 @@ package server
 
 import (
 	"binp/storage"
+	"binp/util"
 	"fmt"
 
 	"github.com/a-h/templ"
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/rs/zerolog"
 )
 
 type Server struct {
 	store *storage.Store
 	echo  *echo.Echo
+	log   *zerolog.Logger
 }
 
 type CustomValidator struct {
@@ -20,10 +23,15 @@ type CustomValidator struct {
 }
 
 func NewServer(s *storage.Store) Server {
+	util.InitLogger()
 	e := echo.New()
 	e.Validator = &CustomValidator{validator: validator.New()}
-	e.Use(middleware.Logger())
-	e.Static("/css", "views/css")
+
+	e.Use(middleware.RequestID())
+	e.Use(util.CustomLoggerMiddleware())
+	e.Use(middleware.Recover())
+
+	e.Static("/css", "static/css")
 
 	server := Server{
 		store: s,
