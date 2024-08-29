@@ -124,20 +124,27 @@ func (s *Store) GetSnippetByID(id string) (*Snippet, error) {
 	}
 	if expiresAt.Valid {
 		snippet.ExpiresAt = expiresAt.Time
+		if snippet.ExpiresAt.Before(time.Now().UTC()) {
+			s.cache.client.Delete(id)
+			return nil, nil
+		}
 	}
 	s.cache.client.Put(id, &snippet)
 	return &snippet, nil
 }
 
-func (s *Store) SetSnippetIsRead(snippetID string) error {
+func (s *Store) UpdateSnippet(snippet *Snippet) error {
 	query := `
 		UPDATE snippet
-		SET is_read = 1
+		SET text = ?, burn_after_read = ?, expires_at = ?, is_read = ?
 		WHERE id = ?
 	`
-	_, err := s.db.client.Exec(query, snippetID)
-	s.cache.client.Delete(snippetID)
-	return err
+	_, err := s.db.client.Exec(query, snippet.Text, snippet.BurnAfterRead, snippet.ExpiresAt, snippet.IsRead, snippet.ID)
+	if err != nil {
+		return err
+	}
+	s.cache.client.Put(snippet.ID, snippet)
+	return nil
 }
 
 func (s *Store) DeleteSnippet(id string) error {

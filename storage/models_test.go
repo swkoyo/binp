@@ -122,7 +122,7 @@ func TestDeleteSnippet(t *testing.T) {
 	assert.Nil(t, cachedSnippet)
 }
 
-func TestSetSnippetIsRead(t *testing.T) {
+func TestUpdateSnippet(t *testing.T) {
 	store := setupTestStore(t)
 	defer store.db.Close()
 
@@ -132,15 +132,16 @@ func TestSetSnippetIsRead(t *testing.T) {
 
 	store.cache.client.Put(snippet.ID, snippet)
 
-	err = store.SetSnippetIsRead(snippet.ID)
+	snippet.IsRead = true
+	err = store.UpdateSnippet(snippet)
 	assert.NoError(t, err)
+
+	cachedSnippet := store.cache.client.Get(snippet.ID)
+	assert.True(t, cachedSnippet.IsRead)
 
 	updatedSnippet, err := store.GetSnippetByID(snippet.ID)
 	assert.NoError(t, err)
 	assert.True(t, updatedSnippet.IsRead)
-
-	cachedSnippet := store.cache.client.Get(snippet.ID)
-	assert.True(t, cachedSnippet.IsRead)
 }
 
 func TestGetExpiredSnippetIDs(t *testing.T) {

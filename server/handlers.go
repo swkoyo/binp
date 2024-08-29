@@ -32,11 +32,11 @@ func (s *Server) HandleGetSnippet(c echo.Context) error {
 		return Render(c, http.StatusNotFound, views.NotFoundPage())
 	}
 	if !snippet.IsRead {
-		err = s.store.SetSnippetIsRead(id)
+		snippet.IsRead = true
+		err = s.store.UpdateSnippet(snippet)
 		if err != nil {
 			return err
 		}
-		snippet.IsRead = true
 	} else if snippet.BurnAfterRead {
 		err = s.store.DeleteSnippet(id)
 		if err != nil {
