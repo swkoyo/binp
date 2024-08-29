@@ -151,11 +151,8 @@ func TestGetExpiredSnippetIDs(t *testing.T) {
 	expiredSnippet, err := store.CreateSnippet("Expired snippet", false, OneHour)
 	assert.NoError(t, err)
 
-	_, err = store.db.client.Exec(
-		"UPDATE snippet SET expires_at = ? WHERE id = ?",
-		time.Now().UTC().Add(-time.Hour),
-		expiredSnippet.ID,
-	)
+	expiredSnippet.ExpiresAt = time.Now().UTC().Add(-time.Hour)
+	err = store.UpdateSnippet(expiredSnippet)
 	assert.NoError(t, err)
 
 	_, err = store.CreateSnippet("Valid snippet", false, OneDay)
@@ -175,11 +172,8 @@ func TestDeleteExpiredSnippets(t *testing.T) {
 	expiredSnippet, err := store.CreateSnippet("Expired snippet", false, OneHour)
 	assert.NoError(t, err)
 
-	_, err = store.db.client.Exec(
-		"UPDATE snippet SET expires_at = ? WHERE id = ?",
-		time.Now().UTC().Add(-time.Hour),
-		expiredSnippet.ID,
-	)
+	expiredSnippet.ExpiresAt = time.Now().UTC().Add(-time.Hour)
+	err = store.UpdateSnippet(expiredSnippet)
 	assert.NoError(t, err)
 
 	store.cache.client.Put(expiredSnippet.ID, expiredSnippet)
