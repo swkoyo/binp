@@ -11,8 +11,9 @@ import (
 )
 
 type PostSnippetReq struct {
-	Text   string `form:"text" validate:"required,min=1,max=1000"`
-	Expiry string `form:"expiry" validate:"required,oneof=never burn_after one_hour one_day one_week one_month"`
+	Text          string `form:"text" validate:"required,min=1,max=1000"`
+	BurnAfterRead bool   `form:"burn_after_read"`
+	Expiry        string `form:"expiry" validate:"required,oneof=one_hour one_day one_week one_month"`
 }
 
 func (s *Server) HandleGetIndex(c echo.Context) error {
@@ -46,14 +47,16 @@ func (s *Server) HandleGetSnippet(c echo.Context) error {
 }
 
 func (s *Server) HandlePostSnippet(c echo.Context) error {
+	logger := util.GetLoggerWithRequestID(c)
 	data := new(PostSnippetReq)
 	if err := c.Bind(data); err != nil {
 		return err
 	}
+	logger.Info().Interface("data", data).Msg("PostSnippet")
 	if err := c.Validate(data); err != nil {
 		return err
 	}
-	snippet, err := s.store.CreateSnippet(data.Text, storage.GetSnippetExpiration(data.Expiry))
+	snippet, err := s.store.CreateSnippet(data.Text, data.BurnAfterRead, storage.GetSnippetExpiration(data.Expiry))
 	if err != nil {
 		return err
 	}

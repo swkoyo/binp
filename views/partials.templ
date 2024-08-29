@@ -3,7 +3,9 @@ package views
 import "binp/storage"
 
 templ SnippetForm() {
-	<form hx-post="/snippet">
+	<form
+		hx-post="/snippet"
+	>
 		<div class="overflow-hidden rounded-lg shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-indigo-600">
 			<textarea
 				_="
@@ -21,6 +23,14 @@ templ SnippetForm() {
 			></textarea>
 		</div>
 		<div class="flex justify-end pt-2">
+			<div>
+				<input
+					type="checkbox"
+					name="burn_after_read"
+					value="true"
+				/>
+				<label for="burn_after_read">Burn after read</label>
+			</div>
 			@SnippetExpirySelector()
 			<button
 				disabled

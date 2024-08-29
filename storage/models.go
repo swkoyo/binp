@@ -26,9 +26,7 @@ type SnippetExpirationChoice struct {
 type SnippetExpiration int
 
 const (
-	Never SnippetExpiration = iota
-	BurnAfter
-	OneHour
+	OneHour SnippetExpiration = iota
 	OneDay
 	OneWeek
 	OneMonth
@@ -36,10 +34,6 @@ const (
 
 func GetSnippetExpiration(value string) SnippetExpiration {
 	switch value {
-	case "never":
-		return Never
-	case "burn_after":
-		return BurnAfter
 	case "one_hour":
 		return OneHour
 	case "one_day":
@@ -49,14 +43,12 @@ func GetSnippetExpiration(value string) SnippetExpiration {
 	case "one_month":
 		return OneMonth
 	default:
-		return Never
+		return OneHour
 	}
 }
 
 func GetSnippetExpirationChoices() []SnippetExpirationChoice {
 	return []SnippetExpirationChoice{
-		{"Never", "never"},
-		{"Burn After Read", "burn_after"},
 		{"One Hour", "one_hour"},
 		{"One Day", "one_day"},
 		{"One Week", "one_week"},
@@ -83,7 +75,7 @@ func (s SnippetExpiration) GetExpirationTime() *time.Time {
 	}
 }
 
-func (s *Store) CreateSnippet(text string, expiry SnippetExpiration) (*Snippet, error) {
+func (s *Store) CreateSnippet(text string, burnAfterRead bool, expiry SnippetExpiration) (*Snippet, error) {
 	id, err := gonanoid.Nanoid()
 	if err != nil {
 		return nil, err
@@ -92,10 +84,6 @@ func (s *Store) CreateSnippet(text string, expiry SnippetExpiration) (*Snippet, 
 	var expiresAt *time.Time
 	if expirationTime := expiry.GetExpirationTime(); expirationTime != nil {
 		expiresAt = expirationTime
-	}
-	burnAfterRead := false
-	if expiry == BurnAfter {
-		burnAfterRead = true
 	}
 
 	query := `
