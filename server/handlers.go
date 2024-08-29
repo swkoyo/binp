@@ -2,6 +2,7 @@ package server
 
 import (
 	"binp/storage"
+	"binp/util"
 	"binp/views"
 	"fmt"
 	"net/http"
@@ -15,7 +16,8 @@ type PostSnippetReq struct {
 }
 
 func (s *Server) HandleGetIndex(c echo.Context) error {
-	c.Logger().Info("Index page requested")
+	logger := util.GetLoggerWithRequestID(c)
+	logger.Info().Msg("Index page")
 	return Render(c, http.StatusOK, views.Index())
 }
 

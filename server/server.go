@@ -1,8 +1,8 @@
 package server
 
 import (
-	"binp/logger"
 	"binp/storage"
+	"binp/util"
 	"fmt"
 
 	"github.com/a-h/templ"
@@ -23,14 +23,12 @@ type CustomValidator struct {
 }
 
 func NewServer(s *storage.Store) Server {
-	logger.InitLogger()
+	util.InitLogger()
 	e := echo.New()
 	e.Validator = &CustomValidator{validator: validator.New()}
 
-	e.Logger = logger.GetEchoLogger()
-
 	e.Use(middleware.RequestID())
-	e.Use(logger.CustomLoggerMiddleware())
+	e.Use(util.CustomLoggerMiddleware())
 	e.Use(middleware.Recover())
 
 	e.Static("/css", "static/css")

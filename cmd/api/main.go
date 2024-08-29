@@ -1,9 +1,9 @@
 package main
 
 import (
-	"binp/logger"
 	"binp/server"
 	"binp/storage"
+	"binp/util"
 	"log"
 	"os"
 
@@ -15,8 +15,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	logger.InitLogger()
-	log := logger.GetLogger()
+	util.InitLogger()
+	log := util.GetLogger()
 
 	store, err := storage.NewStore()
 	if err != nil {
