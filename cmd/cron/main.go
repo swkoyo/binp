@@ -3,8 +3,8 @@ package main
 import (
 	"binp/scheduler"
 	"binp/storage"
+	"binp/util"
 	"context"
-	"log"
 	"os"
 	"os/signal"
 	"time"
@@ -13,29 +13,35 @@ import (
 )
 
 func main() {
+	util.InitLogger()
+	logger := util.GetLogger()
 	if err := godotenv.Load(); err != nil {
-		log.Fatal(err)
+		logger.Fatal().Err(err).Msg("Error loading .env file")
 	}
 
 	store, err := storage.NewStore()
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal().Err(err).Msg("Failed to create store")
 	}
 
 	if err := store.Init(); err != nil {
-		log.Fatal(err)
+		logger.Fatal().Err(err).Msg("Failed to initialize store")
 	}
 
 	runner := scheduler.NewScheduler()
 
 	runner.AddFunc("@every 1m", func() {
-		err := store.DeleteExpiredSnippets()
+		logger.Info().Msg("Checking for expired snippets...")
+		count, err := store.DeleteExpiredSnippets()
 		if err != nil {
-			log.Println(err)
+			logger.Error().Err(err).Int("count", count).Msg("Failed to delete expired snippets")
 		}
+		logger.Info().Int("count", count).Msg("Expired snippets deleted")
 	})
 
+	logger.Info().Msg("Starting scheduler...")
 	runner.Start()
+	logger.Info().Msg("Scheduler started!")
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)
@@ -43,5 +49,7 @@ func main() {
 	_, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
+	logger.Info().Msg("Shutting down scheduler...")
 	<-runner.Stop().Done()
+	logger.Info().Msg("Scheduler stopped!")
 }

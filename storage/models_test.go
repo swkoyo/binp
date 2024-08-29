@@ -181,8 +181,9 @@ func TestDeleteExpiredSnippets(t *testing.T) {
 	validSnippet, err := store.CreateSnippet("Valid snippet", false, OneDay)
 	assert.NoError(t, err)
 
-	err = store.DeleteExpiredSnippets()
+	count, err := store.DeleteExpiredSnippets()
 	assert.NoError(t, err)
+	assert.Equal(t, 1, count)
 
 	deletedSnippet, err := store.GetSnippetByID(expiredSnippet.ID)
 	assert.NoError(t, err)

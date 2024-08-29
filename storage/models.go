@@ -183,13 +183,13 @@ func (s *Store) getExpiredSnippetIDs() ([]string, error) {
 	return ids, nil
 }
 
-func (s *Store) DeleteExpiredSnippets() error {
+func (s *Store) DeleteExpiredSnippets() (int, error) {
 	ids, err := s.getExpiredSnippetIDs()
 	if err != nil {
-		return err
+		return len(ids), err
 	}
 	if len(ids) == 0 {
-		return nil
+		return len(ids), nil
 	}
 
 	placeholders := make([]string, len(ids))
@@ -209,12 +209,12 @@ func (s *Store) DeleteExpiredSnippets() error {
 
 	_, err = s.db.client.Exec(query, args...)
 	if err != nil {
-		return err
+		return len(ids), err
 	}
 
 	for _, id := range ids {
 		s.cache.client.Delete(id)
 	}
 
-	return nil
+	return len(ids), nil
 }

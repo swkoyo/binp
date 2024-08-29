@@ -27,7 +27,3 @@ func (s *Scheduler) Stop() context.Context {
 func (s *Scheduler) AddFunc(spec string, cmd func()) (cron.EntryID, error) {
 	return s.cron.AddFunc(spec, cmd)
 }
-
-func (s *Scheduler) AddJob(spec string, cmd cron.Job) (cron.EntryID, error) {
-	return s.cron.AddJob(spec, cmd)
-}
