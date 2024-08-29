@@ -33,7 +33,7 @@ func NewServer(s *storage.Store) Server {
 	e.Use(logger.CustomLoggerMiddleware())
 	e.Use(middleware.Recover())
 
-	e.Static("/css", "views/css")
+	e.Static("/css", "static/css")
 
 	server := Server{
 		store: s,
