@@ -2,28 +2,136 @@ package views
 
 import "binp/storage"
 
+// templ Navbar(snippet *storage.Snippet) {
+// 	<nav id="navbar" class="bg-white dark:bg-black">
+// 		<div class="container mx-auto">
+// 			<div class="flex justify-between items-center py-5">
+// 				<a href="/" class="text-black dark:text-white">binp</a>
+// 				if snippet != nil {
+// 					<p id="snippet-id">{ snippet.ID }</p>
+// 					<button
+// 						_="
+// 							on click
+// 							writeText(window.location.origin + '/' + #snippet-id.innerText) into the navigator's clipboard
+// 						"
+// 						class="bg-black dark:bg-white text-white dark:text-black px-3 py-1 rounded"
+// 					>
+// 						Copy URL
+// 					</button>
+// 				}
+// 			</div>
+// 		</div>
+// 	</nav>
+// }
 templ Index() {
 	@Base() {
-		@Navbar(nil)
-		<div class="w-full">
-			@SnippetForm()
-		</div>
+		<form class="flex flex-col h-full w-full" hx-post="/snippet">
+			<div class="flex w-full bg-gray text-white py-5 px-4 justify-between">
+				<a href="/">binp</a>
+				<div>
+					<input type="checkbox" name="burn_after_read" value="true"/>
+					<label for="burn_after_read">Burn after read</label>
+				</div>
+				@SnippetExpirySelector()
+				<button type="submit" class="bg-green px-3.5 py-2.5 text-sm font-semibold text-black shadow-sm hover:bg-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green">
+					Submit
+				</button>
+			</div>
+			<textarea
+				autofocus
+				name="text"
+				placeholder="~"
+				class="w-full h-full bg-black text-white resize-none border-none outline-none p-4 focus:ring-0"
+				_="
+					on keydown[key=='Tab']
+					halt the event default
+					get my selectionStart
+					set start to it
+					get my selectionEnd
+					set end to it
+					get my value
+					set my value to it.substring(0, start) + '\t' + it.substring(end)
+					set my selectionStart to start + 1
+					set my selectionEnd to start + 1
+				"
+			></textarea>
+		</form>
 	}
 }
 
+templ SnippetExpirySelector() {
+	<select name="expiry" class="mt-2 block rounded-md border-0 py-1.5 pl-3 pr-10 text-white ring-1 ring-inset ring-gray focus:ring-2 focus:ring-blue sm:text-sm sm:leading-6 bg-gray">
+		for _, choice := range storage.GetSnippetExpirationChoices() {
+			<option value={ choice.Value }>{ choice.Label }</option>
+		}
+	</select>
+}
+
+// templ SnippetForm() {
+// 	<form
+// 		hx-post="/snippet"
+// 	>
+// 		<div class="overflow-hidden rounded-lg shadow-sm ring-2 ring-gray focus-within:ring-2 focus-within:ring-blue">
+// 			<textarea
+// 				_="
+// 					on input
+// 					if event.target.value.length === 0
+// 						add @disabled to #snippet-submit-btn
+// 					else
+// 						remove @disabled from #snippet-submit-btn
+// 				"
+// 				autofocus
+// 				rows="10"
+// 				name="text"
+// 				placeholder="Hello World!"
+// 				class="block w-full resize-none border-0 bg-transparent py-1.5 text-black dark:text-white bg-white dark:bg-gray placeholder:text-gray-500 focus:ring-0 sm:text-sm sm:leading-6"
+// 			></textarea>
+// 		</div>
+// 		<div class="flex justify-end pt-2">
+// 			<div>
+// 				<input
+// 					type="checkbox"
+// 					name="burn_after_read"
+// 					value="true"
+// 				/>
+// 				<label for="burn_after_read">Burn after read</label>
+// 			</div>
+// 			@SnippetExpirySelector()
+// 			<button
+// 				disabled
+// 				id="snippet-submit-btn"
+// 				type="submit"
+// 				class="rounded-md bg-green px-3.5 py-2.5 text-sm font-semibold text-black shadow-sm hover:bg-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green disabled:cursor-not-allowed"
+// 			>
+// 				Submit
+// 			</button>
+// 		</div>
+// 	</form>
+// }
+//
+// templ SnippetExpirySelector() {
+// 	<select name="expiry" class="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-white ring-1 ring-inset ring-gray focus:ring-2 focus:ring-blue sm:text-sm sm:leading-6 bg-gray">
+// 		for _, choice := range storage.GetSnippetExpirationChoices() {
+// 			<option value={ choice.Value }>{ choice.Label }</option>
+// 		}
+// 	</select>
+// }
+//
+// templ Index() {
+// 	@Base() {
+// 		@Navbar(nil)
+// 		<div class="w-full">
+// 			@SnippetForm()
+// 		</div>
+// 	}
+// }
 templ SnippetPage(snippet *storage.Snippet) {
 	@Base() {
-		@Navbar(snippet)
+		<div class="flex w-full bg-gray text-white py-5 px-4 justify-between">
+			<a href="/">binp</a>
+		</div>
 		<div class="w-full">
-			<pre><code id="snippet">{ snippet.Text }</code></pre>
-			<button
-				class="rounded bg-blue-500 px-2"
-				_="on click
-					writeText(#snippet.innerText) into the navigator's clipboard
-				"
-			>
-				Copy
-			</button>
+			<pre class="p-4"><code id="snippet">{ snippet.Text }</code></pre>
 		</div>
 	}
 }
