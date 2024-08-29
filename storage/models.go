@@ -59,16 +59,16 @@ func GetSnippetExpirationChoices() []SnippetExpirationChoice {
 func (s SnippetExpiration) GetExpirationTime() *time.Time {
 	switch s {
 	case OneHour:
-		t := time.Now().Add(time.Hour)
+		t := time.Now().UTC().Add(time.Hour)
 		return &t
 	case OneDay:
-		t := time.Now().Add(time.Hour * 24)
+		t := time.Now().UTC().Add(time.Hour * 24)
 		return &t
 	case OneWeek:
-		t := time.Now().Add(time.Hour * 24 * 7)
+		t := time.Now().UTC().Add(time.Hour * 24 * 7)
 		return &t
 	case OneMonth:
-		t := time.Now().Add(time.Hour * 24 * 30)
+		t := time.Now().UTC().Add(time.Hour * 24 * 30)
 		return &t
 	default:
 		return nil
@@ -153,7 +153,7 @@ func (s *Store) DeleteSnippet(id string) error {
 	return nil
 }
 
-func (s *Store) GetExpiredSnippetIDs() ([]string, error) {
+func (s *Store) getExpiredSnippetIDs() ([]string, error) {
 	query := `
 		SELECT id
 		FROM snippet
@@ -177,7 +177,7 @@ func (s *Store) GetExpiredSnippetIDs() ([]string, error) {
 }
 
 func (s *Store) DeleteExpiredSnippets() error {
-	ids, err := s.GetExpiredSnippetIDs()
+	ids, err := s.getExpiredSnippetIDs()
 	if err != nil {
 		return err
 	}
