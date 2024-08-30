@@ -20,7 +20,7 @@ type Snippet struct {
 	ExpiresAt     time.Time `json:"expires_at"`
 }
 
-type SnippetExpirationChoice struct {
+type SelectOption struct {
 	Label string
 	Value string
 }
@@ -49,29 +49,29 @@ func GetSnippetExpiration(value string) SnippetExpiration {
 	}
 }
 
-func GetCodeLanguageChoices() []string {
-	return []string{
-		"plaintext",
-		"bash",
-		"css",
-		"docker",
-		"go",
-		"html",
-		"javascript",
-		"json",
-		"lua",
-		"nix",
-		"python",
-		"rust",
-		"sql",
-		"toml",
-		"typescript",
-		"yaml",
+func GetCodeLanguageOptions() []SelectOption {
+	return []SelectOption{
+		{"Plaintext", "plaintext"},
+		{"Bash", "bash"},
+		{"CSS", "css"},
+		{"Docker", "docker"},
+		{"Go", "go"},
+		{"HTML", "html"},
+		{"JavaScript", "javascript"},
+		{"JSON", "json"},
+		{"Lua", "lua"},
+		{"Nix", "nix"},
+		{"Python", "python"},
+		{"Rust", "rust"},
+		{"SQL", "sql"},
+		{"TOML", "toml"},
+		{"TypeScript", "typescript"},
+		{"YAML", "yaml"},
 	}
 }
 
-func GetSnippetExpirationChoices() []SnippetExpirationChoice {
-	return []SnippetExpirationChoice{
+func GetSnippetExpirationOptions() []SelectOption {
+	return []SelectOption{
 		{"One Hour", "one_hour"},
 		{"One Day", "one_day"},
 		{"One Week", "one_week"},

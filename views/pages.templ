@@ -4,28 +4,36 @@ import "binp/storage"
 
 templ Index() {
 	@Base() {
-		<form class="flex flex-col h-full w-full" hx-post="/snippet">
-			@Navbar() {
-				<div>
-					<input type="checkbox" name="burn_after_read" value="true"/>
-					<label for="burn_after_read">Burn after read</label>
-				</div>
-				@SnippetExpirySelector()
-				@CodeLanguageSelector()
-				@Button(
-					"Submit",
-					templ.Attributes{
-						"disabled": true,
-						"type":     "submit",
-						"id":       "snippet-submit-btn",
-					},
+		@Navbar() {
+			<div class="flex">
+				<input type="checkbox" name="burn_after_read" value="true" class="w-4 h-4 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500 dark:focus:ring-red-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"/>
+				<label for="burn_after_read" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Burn after read</label>
+				@Select(
+					storage.GetCodeLanguageOptions(),
+					templ.Attributes{"name": "language"},
 				)
-			}
+				@Select(
+					storage.GetSnippetExpirationOptions(),
+					templ.Attributes{"name": "expiry"},
+				)
+			</div>
+			@Button(
+				"Submit",
+				templ.Attributes{
+					"disabled":   true,
+					"type":       "submit",
+					"id":         "snippet-submit-btn",
+					"hx-post":    "/snippet",
+					"hx-include": "[name='text'], [name='language'], [name='expiry'], [name='burn_after_read']",
+				},
+			)
+		}
+		<div class="flex pt-20 h-full w-full">
 			<textarea
 				autofocus
 				name="text"
 				placeholder="Hello world"
-				class="w-full h-full bg-black text-white resize-none border-none outline-none p-4 focus:ring-0"
+				class="w-full h-full bg-transparent text-white resize-none border-none outline-none px-4 py-6 focus:ring-0"
 				_="
 					on keydown[key=='Tab']
 						halt the event default
@@ -44,43 +52,29 @@ templ Index() {
 							remove @disabled from #snippet-submit-btn
 				"
 			></textarea>
-		</form>
+		</div>
 	}
-}
-
-templ CodeLanguageSelector() {
-	<select name="language" class="mt-2 block rounded-md border-0 py-1.5 pl-3 pr-10 text-white ring-1 ring-inset ring-gray focus:ring-2 focus:ring-blue sm:text-sm sm:leading-6 bg-gray">
-		for _, choice := range storage.GetCodeLanguageChoices() {
-			<option value={ choice }>{ choice }</option>
-		}
-	</select>
-}
-
-templ SnippetExpirySelector() {
-	<select name="expiry" class="mt-2 block rounded-md border-0 py-1.5 pl-3 pr-10 text-white ring-1 ring-inset ring-gray focus:ring-2 focus:ring-blue sm:text-sm sm:leading-6 bg-gray">
-		for _, choice := range storage.GetSnippetExpirationChoices() {
-			<option value={ choice.Value }>{ choice.Label }</option>
-		}
-	</select>
 }
 
 templ SnippetPage(snippet *storage.Snippet, highlightedCode string) {
 	@Base() {
-		<div class="flex flex-col w-full h-full">
-			@Navbar() {
-				@Button(
-					"Copy URL",
-					templ.Attributes{
-						"_": "on click writeText(window.location.origin + '/' + #snippet-id.innerText) into the navigator's clipboard",
-					},
-				)
-				@Button(
-					"Copy Text",
-					templ.Attributes{
-						"_": "on click writeText(#snippet-raw-text.innerText) into the navigator's clipboard",
-					},
-				)
-			}
+		@Navbar() {
+			@Button(
+				"Copy URL",
+				templ.Attributes{
+					"_":    "on click writeText(window.location.origin + '/' + #snippet-id.innerText) into the navigator's clipboard",
+					"type": "button",
+				},
+			)
+			@Button(
+				"Copy Text",
+				templ.Attributes{
+					"_":    "on click writeText(#snippet-raw-text.innerText) into the navigator's clipboard",
+					"type": "button",
+				},
+			)
+		}
+		<div class="flex pt-20 h-full w-full">
 			<div hidden class="sr-only absolute" id="snippet-raw-text">{ snippet.Text }</div>
 			<div hidden class="sr-only absolute" id="snippet-id">{ snippet.ID }</div>
 			<div class="p-4">
@@ -93,11 +87,9 @@ templ SnippetPage(snippet *storage.Snippet, highlightedCode string) {
 templ NotFoundPage() {
 	@Base() {
 		@Navbar()
-		<div class="w-full py-4">
-			<div class="text-center text-white">
-				<h1 class="text-2xl">404</h1>
-				<p>Bottom text</p>
-			</div>
+		<div class="flex flex-col pt-20 h-full w-full text-center">
+			<h1 class="text-2xl">404</h1>
+			<p>Bottom text</p>
 		</div>
 	}
 }
