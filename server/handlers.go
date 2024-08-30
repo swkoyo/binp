@@ -11,7 +11,7 @@ import (
 )
 
 type PostSnippetReq struct {
-	Text          string `form:"text" validate:"required,min=1,max=5000"`
+	Text          string `form:"text" validate:"required,min=1,max=10000"`
 	BurnAfterRead bool   `form:"burn_after_read"`
 	Language      string `form:"language" validate:"required,oneof=plaintext bash css docker go html javascript json markdown python ruby typescript"`
 	Expiry        string `form:"expiry" validate:"required,oneof=one_hour one_day one_week one_month"`
