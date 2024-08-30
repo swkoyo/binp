@@ -32,6 +32,7 @@ func NewServer(s *storage.Store) Server {
 	e.Use(middleware.Recover())
 
 	e.Static("/css", "static/css")
+	e.Static("/assets", "static/assets")
 
 	server := Server{
 		store: s,
