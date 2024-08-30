@@ -13,6 +13,7 @@ import (
 type PostSnippetReq struct {
 	Text          string `form:"text" validate:"required,min=1,max=1000"`
 	BurnAfterRead bool   `form:"burn_after_read"`
+	Language      string `form:"language" validate:"required,oneof=plaintext bash css docker go html javascript json markdown python ruby typescript"`
 	Expiry        string `form:"expiry" validate:"required,oneof=one_hour one_day one_week one_month"`
 }
 
@@ -50,14 +51,17 @@ func (s *Server) HandlePostSnippet(c echo.Context) error {
 	logger := util.GetLoggerWithRequestID(c)
 	data := new(PostSnippetReq)
 	if err := c.Bind(data); err != nil {
+		logger.Error().Err(err).Msg("Bind")
 		return err
 	}
 	logger.Info().Interface("data", data).Msg("PostSnippet")
 	if err := c.Validate(data); err != nil {
+		logger.Error().Err(err).Msg("Validate")
 		return err
 	}
-	snippet, err := s.store.CreateSnippet(data.Text, data.BurnAfterRead, storage.GetSnippetExpiration(data.Expiry))
+	snippet, err := s.store.CreateSnippet(data.Text, data.BurnAfterRead, storage.GetSnippetExpiration(data.Expiry), data.Language)
 	if err != nil {
+		logger.Error().Err(err).Msg("CreateSnippet")
 		return err
 	}
 	c.Response().Header().Set("HX-Redirect", fmt.Sprintf("/%s", snippet.ID))

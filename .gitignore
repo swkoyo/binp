@@ -21,6 +21,7 @@ tmp/
 views/*_templ.go
 views/*_templ.txt
 static/css/output.css
+static/css/chroma.css
 node_modules/
 
 # Go workspace file

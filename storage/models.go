@@ -15,6 +15,7 @@ type Snippet struct {
 	Text          string    `json:"text"`
 	BurnAfterRead bool      `json:"burn_after_read"`
 	IsRead        bool      `json:"is_read"`
+	Language      string    `json:"language"`
 	CreatedAt     time.Time `json:"created_at"`
 	ExpiresAt     time.Time `json:"expires_at"`
 }
@@ -23,6 +24,7 @@ type SnippetExpirationChoice struct {
 	Label string
 	Value string
 }
+
 type SnippetExpiration int
 
 const (
@@ -44,6 +46,27 @@ func GetSnippetExpiration(value string) SnippetExpiration {
 		return OneMonth
 	default:
 		return OneHour
+	}
+}
+
+func GetCodeLanguageChoices() []string {
+	return []string{
+		"plaintext",
+		"bash",
+		"css",
+		"docker",
+		"go",
+		"html",
+		"javascript",
+		"json",
+		"lua",
+		"nix",
+		"python",
+		"rust",
+		"sql",
+		"toml",
+		"typescript",
+		"yaml",
 	}
 }
 
@@ -75,7 +98,7 @@ func (s SnippetExpiration) GetExpirationTime() *time.Time {
 	}
 }
 
-func (s *Store) CreateSnippet(text string, burnAfterRead bool, expiry SnippetExpiration) (*Snippet, error) {
+func (s *Store) CreateSnippet(text string, burnAfterRead bool, expiry SnippetExpiration, language string) (*Snippet, error) {
 	id, err := gonanoid.Nanoid()
 	if err != nil {
 		return nil, err
@@ -87,10 +110,10 @@ func (s *Store) CreateSnippet(text string, burnAfterRead bool, expiry SnippetExp
 	}
 
 	query := `
-        INSERT INTO snippet (id, text, burn_after_read, expires_at)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO snippet (id, text, burn_after_read, language, expires_at)
+        VALUES (?, ?, ?, ?, ?)
     `
-	_, err = s.db.client.Exec(query, id, text, burnAfterRead, expiresAt)
+	_, err = s.db.client.Exec(query, id, text, burnAfterRead, language, expiresAt)
 	if err != nil {
 		return nil, err
 	}
@@ -108,14 +131,14 @@ func (s *Store) GetSnippetByID(id string) (*Snippet, error) {
 		return snippet, nil
 	}
 	query := `
-		SELECT pk, id, text, burn_after_read, is_read, expires_at, created_at
+		SELECT pk, id, text, burn_after_read, is_read, language, expires_at, created_at
 		FROM snippet
 		WHERE id = ?
 	`
 	row := s.db.client.QueryRow(query, id)
 	var snippet Snippet
 	var expiresAt sql.NullTime
-	err := row.Scan(&snippet.PK, &snippet.ID, &snippet.Text, &snippet.BurnAfterRead, &snippet.IsRead, &expiresAt, &snippet.CreatedAt)
+	err := row.Scan(&snippet.PK, &snippet.ID, &snippet.Text, &snippet.BurnAfterRead, &snippet.IsRead, &snippet.Language, &expiresAt, &snippet.CreatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
@@ -136,10 +159,10 @@ func (s *Store) GetSnippetByID(id string) (*Snippet, error) {
 func (s *Store) UpdateSnippet(snippet *Snippet) error {
 	query := `
 		UPDATE snippet
-		SET text = ?, burn_after_read = ?, expires_at = ?, is_read = ?
+		SET text = ?, burn_after_read = ?, expires_at = ?, is_read = ?, language = ?
 		WHERE id = ?
 	`
-	_, err := s.db.client.Exec(query, snippet.Text, snippet.BurnAfterRead, snippet.ExpiresAt, snippet.IsRead, snippet.ID)
+	_, err := s.db.client.Exec(query, snippet.Text, snippet.BurnAfterRead, snippet.ExpiresAt, snippet.IsRead, snippet.Language, snippet.ID)
 	if err != nil {
 		return err
 	}

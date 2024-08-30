@@ -33,6 +33,7 @@ templ Index() {
 					<label for="burn_after_read">Burn after read</label>
 				</div>
 				@SnippetExpirySelector()
+				@CodeLanguageSelector()
 				<button type="submit" class="bg-green px-3.5 py-2.5 text-sm font-semibold text-black shadow-sm hover:bg-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green">
 					Submit
 				</button>
@@ -57,6 +58,14 @@ templ Index() {
 			></textarea>
 		</form>
 	}
+}
+
+templ CodeLanguageSelector() {
+	<select name="language" class="mt-2 block rounded-md border-0 py-1.5 pl-3 pr-10 text-white ring-1 ring-inset ring-gray focus:ring-2 focus:ring-blue sm:text-sm sm:leading-6 bg-gray">
+		for _, choice := range storage.GetCodeLanguageChoices() {
+			<option value={ choice }>{ choice }</option>
+		}
+	</select>
 }
 
 templ SnippetExpirySelector() {
@@ -130,8 +139,13 @@ templ SnippetPage(snippet *storage.Snippet) {
 		<div class="flex w-full bg-gray text-white py-5 px-4 justify-between">
 			<a href="/">binp</a>
 		</div>
-		<div class="w-full">
-			<pre class="p-4"><code id="snippet">{ snippet.Text }</code></pre>
+		<div class="w-full h-full">
+			<pre class="p-4 h-full bg-black">
+				<code class="language-go">
+					<!-- @templ.Raw(highlightedCode) -->
+					{ snippet.Text }
+				</code>
+			</pre>
 		</div>
 	}
 }

@@ -4,6 +4,7 @@ go 1.22.4
 
 require (
 	github.com/a-h/templ v0.2.771
+	github.com/alecthomas/chroma/v2 v2.14.0
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.12.0
@@ -16,6 +17,7 @@ require (
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/dlclark/regexp2 v1.11.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
