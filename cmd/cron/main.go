@@ -30,7 +30,7 @@ func main() {
 
 	runner := scheduler.NewScheduler()
 
-	runner.AddFunc("@every 1m", func() {
+	runner.AddFunc("@hourly", func() {
 		logger.Info().Msg("Checking for expired snippets...")
 		count, err := store.DeleteExpiredSnippets()
 		if err != nil {

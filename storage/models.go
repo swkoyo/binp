@@ -147,10 +147,6 @@ func (s *Store) GetSnippetByID(id string) (*Snippet, error) {
 	}
 	if expiresAt.Valid {
 		snippet.ExpiresAt = expiresAt.Time
-		if snippet.ExpiresAt.Before(time.Now().UTC()) {
-			s.cache.client.Delete(id)
-			return nil, nil
-		}
 	}
 	s.cache.client.Put(id, &snippet)
 	return &snippet, nil

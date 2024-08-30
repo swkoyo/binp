@@ -6,6 +6,7 @@ import (
 	"binp/views"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -28,9 +29,20 @@ func (s *Server) HandleGetSnippet(c echo.Context) error {
 	id := c.Param("id")
 	snippet, err := s.store.GetSnippetByID(id)
 	if err != nil {
+		logger.Error().Err(err).Msg("GetSnippetByID")
 		return err
 	}
 	if snippet == nil {
+		logger.Warn().Str("id", id).Msg("Snippet not found")
+		return Render(c, http.StatusNotFound, views.NotFoundPage())
+	}
+	logger.Info().Interface("snippet", snippet).Msg("Snippet found")
+	if snippet.ExpiresAt.Before(time.Now().UTC()) {
+		logger.Warn().Str("id", id).Msg("Snippet expired")
+		err = s.store.DeleteSnippet(snippet.ID)
+		if err != nil {
+			logger.Error().Err(err).Msg("DeleteSnippet")
+		}
 		return Render(c, http.StatusNotFound, views.NotFoundPage())
 	}
 	if !snippet.IsRead {
@@ -40,7 +52,7 @@ func (s *Server) HandleGetSnippet(c echo.Context) error {
 			return err
 		}
 	} else if snippet.BurnAfterRead {
-		err = s.store.DeleteSnippet(id)
+		err = s.store.DeleteSnippet(snippet.ID)
 		if err != nil {
 			return err
 		}
