@@ -49,7 +49,7 @@ func CustomLoggerMiddleware() echo.MiddlewareFunc {
 			}
 
 			zlog.Info().
-				Str("id", id).
+				Str("request_id", id).
 				Str("remote_ip", c.RealIP()).
 				Str("host", req.Host).
 				Str("method", req.Method).

@@ -11,7 +11,7 @@ import (
 )
 
 type PostSnippetReq struct {
-	Text          string `form:"text" validate:"required,min=1,max=1000"`
+	Text          string `form:"text" validate:"required,min=1,max=5000"`
 	BurnAfterRead bool   `form:"burn_after_read"`
 	Language      string `form:"language" validate:"required,oneof=plaintext bash css docker go html javascript json markdown python ruby typescript"`
 	Expiry        string `form:"expiry" validate:"required,oneof=one_hour one_day one_week one_month"`
@@ -24,6 +24,7 @@ func (s *Server) HandleGetIndex(c echo.Context) error {
 }
 
 func (s *Server) HandleGetSnippet(c echo.Context) error {
+	logger := util.GetLoggerWithRequestID(c)
 	id := c.Param("id")
 	snippet, err := s.store.GetSnippetByID(id)
 	if err != nil {
@@ -44,7 +45,14 @@ func (s *Server) HandleGetSnippet(c echo.Context) error {
 			return err
 		}
 	}
-	return Render(c, http.StatusOK, views.SnippetPage(snippet))
+
+	highlightedCode, err := util.HighlightCode(snippet.Text, snippet.Language)
+	if err != nil {
+		logger.Error().Err(err).Msg("HighlightCode")
+		highlightedCode = snippet.Text
+	}
+
+	return Render(c, http.StatusOK, views.SnippetPage(snippet, highlightedCode))
 }
 
 func (s *Server) HandlePostSnippet(c echo.Context) error {

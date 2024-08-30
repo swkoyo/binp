@@ -134,16 +134,16 @@ templ SnippetExpirySelector() {
 // 		</div>
 // 	}
 // }
-templ SnippetPage(snippet *storage.Snippet) {
+templ SnippetPage(snippet *storage.Snippet, highlightedCode string) {
 	@Base() {
 		<div class="flex w-full bg-gray text-white py-5 px-4 justify-between">
 			<a href="/">binp</a>
 		</div>
 		<div class="w-full h-full">
-			<pre class="p-4 h-full bg-black">
-				<code class="language-go">
-					<!-- @templ.Raw(highlightedCode) -->
-					{ snippet.Text }
+			<pre class="p-4 h-full w-full bg-black">
+				<code class="language-go w-full">
+					@templ.Raw(highlightedCode)
+					<!-- { snippet.Text } -->
 				</code>
 			</pre>
 		</div>
