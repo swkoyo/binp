@@ -1,0 +1,10 @@
+package views
+
+templ Button(text string, attrs templ.Attributes) {
+	<button
+		class="bg-green text-black px-3 py-1 rounded"
+		{ attrs... }
+	>
+		{ text }
+	</button>
+}
