@@ -5,9 +5,7 @@ import "binp/storage"
 templ Index() {
 	@Base() {
 		@Navbar() {
-			<div class="flex">
-				<input type="checkbox" name="burn_after_read" value="true" class="w-4 h-4 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500 dark:focus:ring-red-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"/>
-				<label for="burn_after_read" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Burn after read</label>
+			<div class="flex items-center space-x-2">
 				@Select(
 					storage.GetCodeLanguageOptions(),
 					templ.Attributes{"name": "language"},
@@ -16,6 +14,8 @@ templ Index() {
 					storage.GetSnippetExpirationOptions(),
 					templ.Attributes{"name": "expiry"},
 				)
+				<input type="checkbox" name="burn_after_read" value="true" class="w-4 h-4 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500 dark:focus:ring-red-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"/>
+				<label for="burn_after_read" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Burn after read</label>
 			</div>
 			@Button(
 				"Submit",
@@ -28,7 +28,7 @@ templ Index() {
 				},
 			)
 		}
-		<div class="flex pt-20 h-full w-full">
+		@Container() {
 			<textarea
 				autofocus
 				name="text"
@@ -36,23 +36,23 @@ templ Index() {
 				class="w-full h-full bg-transparent text-white resize-none border-none outline-none px-4 py-6 focus:ring-0"
 				_="
 					on keydown[key=='Tab']
-						halt the event default
-						get my selectionStart
-						set start to it
-						get my selectionEnd
-						set end to it
-						get my value
-						set my value to it.substring(0, start) + '\t' + it.substring(end)
-						set my selectionStart to start + 1
-						set my selectionEnd to start + 1
+					halt the event default
+					get my selectionStart
+					set start to it
+					get my selectionEnd
+					set end to it
+					get my value
+					set my value to it.substring(0, start) + '\t' + it.substring(end)
+					set my selectionStart to start + 1
+					set my selectionEnd to start + 1
 					on input
-						if event.target.value.trim().length === 0
-							add @disabled to #snippet-submit-btn
-						else
-							remove @disabled from #snippet-submit-btn
+					if event.target.value.trim().length === 0
+						add @disabled to #snippet-submit-btn
+					else
+						remove @disabled from #snippet-submit-btn
 				"
 			></textarea>
-		</div>
+		}
 	}
 }
 
@@ -74,22 +74,24 @@ templ SnippetPage(snippet *storage.Snippet, highlightedCode string) {
 				},
 			)
 		}
-		<div class="flex pt-20 h-full w-full">
+		@Container() {
 			<div hidden class="sr-only absolute" id="snippet-raw-text">{ snippet.Text }</div>
 			<div hidden class="sr-only absolute" id="snippet-id">{ snippet.ID }</div>
 			<div class="p-4">
 				@templ.Raw(highlightedCode)
 			</div>
-		</div>
+		}
 	}
 }
 
 templ NotFoundPage() {
 	@Base() {
 		@Navbar()
-		<div class="flex flex-col pt-20 h-full w-full text-center">
-			<h1 class="text-2xl">404</h1>
-			<p>Bottom text</p>
-		</div>
+		@Container() {
+			<div class="flex flex-col text-center">
+				<h1 class="text-2xl">404</h1>
+				<p>Bottom text</p>
+			</div>
+		}
 	}
 }
