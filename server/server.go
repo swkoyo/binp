@@ -4,6 +4,7 @@ import (
 	"binp/storage"
 	"binp/util"
 	"fmt"
+	"os"
 
 	"github.com/a-h/templ"
 	"github.com/go-playground/validator"
@@ -26,10 +27,28 @@ func NewServer(s *storage.Store) Server {
 	util.InitLogger()
 	e := echo.New()
 	e.Validator = &CustomValidator{validator: validator.New()}
+	env := os.Getenv("GO_ENV")
 
 	e.Use(middleware.RequestID())
 	e.Use(util.CustomLoggerMiddleware())
 	e.Use(middleware.Recover())
+	e.Use(middleware.Gzip())
+	e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(20)))
+
+	allowedOrigins := []string{fmt.Sprintf("http://localhost:%s", os.Getenv("PORT"))}
+	if env == "production" {
+		allowedOrigins = []string{"https://binp.io"}
+	}
+
+	corsConfig := middleware.CORSConfig{
+		AllowOrigins: allowedOrigins,
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+		AllowMethods: []string{echo.GET, echo.POST},
+		MaxAge:       300,
+	}
+
+	e.Use(middleware.CORSWithConfig(corsConfig))
+	e.Use(middleware.Secure())
 
 	e.Static("/css", "static/css")
 	e.Static("/assets", "static/assets")

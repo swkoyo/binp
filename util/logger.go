@@ -1,6 +1,7 @@
 package util
 
 import (
+	"io"
 	"os"
 	"sync"
 	"time"
@@ -16,7 +17,15 @@ var (
 
 func InitLogger() {
 	once.Do(func() {
-		output := zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: zerolog.TimeFormatUnix}
+		env := os.Getenv("GO_ENV")
+		var output io.Writer
+		if env == "production" {
+			zerolog.SetGlobalLevel(zerolog.InfoLevel)
+			output = io.Writer(os.Stdout)
+		} else {
+			zerolog.SetGlobalLevel(zerolog.DebugLevel)
+			output = zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: zerolog.TimeFormatUnix}
+		}
 		zlog = zerolog.New(output).With().Timestamp().Caller().Logger()
 	})
 }
