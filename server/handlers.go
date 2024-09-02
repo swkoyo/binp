@@ -36,7 +36,7 @@ func (s *Server) HandleGetSnippet(c echo.Context) error {
 		logger.Warn().Str("id", id).Msg("Snippet not found")
 		return Render(c, http.StatusNotFound, views.NotFoundPage())
 	}
-	logger.Info().Interface("snippet", snippet).Msg("Snippet found")
+	logger.Debug().Interface("snippet", snippet).Msg("Snippet found")
 	if snippet.ExpiresAt.Before(time.Now().UTC()) {
 		logger.Warn().Str("id", id).Msg("Snippet expired")
 		err = s.store.DeleteSnippet(snippet.ID)
