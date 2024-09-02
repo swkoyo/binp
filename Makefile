@@ -17,7 +17,7 @@ build-tailwind:
 	echo "Building tailwind"
 	npm run build
 
-build-api: build-chroma build-templ build-tailwind
+build-api: build-templ build-tailwind
 	echo "Building api"
 	go build -o $(TEMP_DIR)/api ./cmd/api/main.go
 

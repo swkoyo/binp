@@ -29,15 +29,7 @@ func main() {
 	}
 
 	runner := scheduler.NewScheduler()
-
-	runner.AddFunc("@hourly", func() {
-		logger.Info().Msg("Checking for expired snippets...")
-		count, err := store.DeleteExpiredSnippets()
-		if err != nil {
-			logger.Error().Err(err).Int("count", count).Msg("Failed to delete expired snippets")
-		}
-		logger.Info().Int("count", count).Msg("Expired snippets deleted")
-	})
+	runner.Init(store)
 
 	logger.Info().Msg("Starting scheduler...")
 	runner.Start()
