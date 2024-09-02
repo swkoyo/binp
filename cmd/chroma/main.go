@@ -1,6 +1,7 @@
 package main
 
 import (
+	"binp/util"
 	"os"
 	"regexp"
 	"strings"
@@ -10,6 +11,11 @@ import (
 )
 
 func main() {
+	util.InitLogger()
+	logger := util.GetLogger()
+
+	logger.Info().Msg("Generating chroma.css...")
+
 	style := styles.Get("tokyonight-night")
 	if style == nil {
 		style = styles.Fallback
@@ -60,4 +66,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	logger.Info().Msg("Generated chroma.css")
 }
