@@ -5,6 +5,7 @@ import (
 	"binp/util"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/a-h/templ"
 	"github.com/go-playground/validator"
@@ -21,6 +22,16 @@ type Server struct {
 
 type CustomValidator struct {
 	validator *validator.Validate
+}
+
+func setCorrectMIMETypeMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		path := c.Request().URL.Path
+		if strings.HasSuffix(path, ".css") {
+			c.Response().Header().Set(echo.HeaderContentType, "text/css")
+		}
+		return next(c)
+	}
 }
 
 func NewServer(s *storage.Store) Server {
@@ -49,6 +60,7 @@ func NewServer(s *storage.Store) Server {
 
 	e.Use(middleware.CORSWithConfig(corsConfig))
 	e.Use(middleware.Secure())
+	e.Use(setCorrectMIMETypeMiddleware)
 
 	e.Static("/css", "static/css")
 	e.Static("/assets", "static/assets")
