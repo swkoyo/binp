@@ -13,11 +13,10 @@ import (
 )
 
 func main() {
+	_ = godotenv.Load()
+
 	util.InitLogger()
 	logger := util.GetLogger()
-	if err := godotenv.Load(); err != nil {
-		logger.Fatal().Err(err).Msg("Error loading .env file")
-	}
 
 	store, err := storage.NewStore()
 	if err != nil {

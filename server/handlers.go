@@ -74,7 +74,7 @@ func (s *Server) HandlePostSnippet(c echo.Context) error {
 		logger.Error().Err(err).Msg("Bind")
 		return err
 	}
-	logger.Info().Interface("data", data).Msg("PostSnippet")
+	logger.Debug().Interface("data", data).Msg("PostSnippet")
 	if err := c.Validate(data); err != nil {
 		logger.Error().Err(err).Msg("Validate")
 		return err
