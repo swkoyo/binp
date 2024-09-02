@@ -1,0 +1,9 @@
+node_modules
+tmp
+.air.toml
+.env
+.gitignore
+Makefile
+db.sqlite
+nginx.conf
+Dockerfile
