@@ -16,7 +16,7 @@ type PostSnippetReq struct {
 	Text          string `form:"text" json:"text" validate:"required,min=1,max=10000"`
 	BurnAfterRead bool   `form:"burn_after_read" json:"burn_after_read"`
 	Language      string `form:"language" json:"language" validate:"required,oneof=plaintext bash css docker go html javascript json markdown python ruby typescript"`
-	Expiry        string `form:"expiry" json:"expiry" validate:"required,oneof=one_hour one_day one_week one_month"`
+	Expiry        string `form:"expiry" json:"expiry" validate:"required,oneof=1h 1d 1w 1m"`
 }
 
 func (s *Server) HandleGetIndex(c echo.Context) error {

@@ -3,11 +3,12 @@ package cli
 import (
 	"binp/server"
 	"binp/storage"
+	"binp/util"
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
-	"net/http"
+	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -22,6 +23,16 @@ var createCmd = &cobra.Command{
 		burnAfterRead, _ := cmd.Flags().GetBool("burn")
 		text := args[0]
 
+		if !storage.IsValidExpiration(expiry) {
+			fmt.Fprintln(os.Stderr, "Error: Invalid expiry. Valid values are 1h, 1d, 1w, 1m")
+			os.Exit(1)
+		}
+
+		if !storage.IsValidLanguage(language) {
+			fmt.Fprintln(os.Stderr, "Error: Invalid language. Valid values are plaintext, bash, css, docker, go, html, javascript, json, markdown, python, ruby, typescript")
+			os.Exit(1)
+		}
+
 		snippetBody := &server.PostSnippetReq{
 			Text:          text,
 			BurnAfterRead: burnAfterRead,
@@ -29,39 +40,40 @@ var createCmd = &cobra.Command{
 			Language:      language,
 		}
 
-		client := &http.Client{}
-
 		postBody, err := json.Marshal(snippetBody)
-		req := bytes.NewBuffer(postBody)
-
-		request, err := http.NewRequest("POST", "http://localhost:8080/snippet", req)
-		request.Header.Set("Content-Type", "application/json")
-		request.Header.Set("Accept", "application/json")
-
-		resp, err := client.Do(request)
 		if err != nil {
-			fmt.Println("Error: ", err)
+			fmt.Fprintln(os.Stderr, "Error: ", err)
+			os.Exit(1)
+		}
+		req := bytes.NewBuffer(postBody)
+		resp, err := util.HTTPPost("http://localhost:8080/snippet", req)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Error: ", err)
+			os.Exit(1)
 		}
 		defer resp.Body.Close()
-		resBody, err := io.ReadAll(resp.Body)
 
+		resBody, err := io.ReadAll(resp.Body)
 		if err != nil {
-			fmt.Println("Error: ", err)
+			fmt.Fprintln(os.Stderr, "Error: ", err)
+			os.Exit(1)
 		}
 
 		createdSnippet := &storage.Snippet{}
-
 		err = json.Unmarshal(resBody, createdSnippet)
 		if err != nil {
-			fmt.Println("Error: ", err)
+			fmt.Fprintln(os.Stderr, "Error: ", err)
+			os.Exit(1)
 		}
+
 		fmt.Println(createdSnippet.ID)
+		os.Exit(0)
 	},
 }
 
 func init() {
-	createCmd.Flags().StringP("language", "l", "plaintext", "The language of the snippet")
-	createCmd.Flags().StringP("expiry", "e", "one_hour", "The expiry time of the snippet (one_hour, one_day, one_week, one_month)")
+	createCmd.Flags().StringP("language", "l", "plaintext", "The language of the snippet (plaintext, bash, css, docker, go, html, javascript, json, markdown, python, ruby, typescript)")
+	createCmd.Flags().StringP("expiry", "e", "1h", "The expiry time of the snippet (1h, 1d, 1w, 1m)")
 	createCmd.Flags().BoolP("burn-after-read", "b", false, "Burn the snippet after reading it once")
 	rootCmd.AddCommand(createCmd)
 }

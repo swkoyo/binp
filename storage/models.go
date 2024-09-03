@@ -3,6 +3,7 @@ package storage
 import (
 	"database/sql"
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 
@@ -34,15 +35,49 @@ const (
 	OneMonth
 )
 
+var ValidExpirations = []string{
+	"1h",
+	"1d",
+	"1w",
+	"1m",
+}
+
+var ValidLanguages = []string{
+	"plaintext",
+	"bash",
+	"css",
+	"docker",
+	"go",
+	"html",
+	"javascript",
+	"json",
+	"lua",
+	"nix",
+	"python",
+	"rust",
+	"sql",
+	"toml",
+	"typescript",
+	"yaml",
+}
+
+func IsValidExpiration(value string) bool {
+	return slices.Contains(ValidExpirations, value)
+}
+
+func IsValidLanguage(value string) bool {
+	return slices.Contains(ValidLanguages, value)
+}
+
 func GetSnippetExpiration(value string) SnippetExpiration {
 	switch value {
-	case "one_hour":
+	case "1h":
 		return OneHour
-	case "one_day":
+	case "1d":
 		return OneDay
-	case "one_week":
+	case "1w":
 		return OneWeek
-	case "one_month":
+	case "1m":
 		return OneMonth
 	default:
 		return OneHour
@@ -72,10 +107,10 @@ func GetCodeLanguageOptions() []SelectOption {
 
 func GetSnippetExpirationOptions() []SelectOption {
 	return []SelectOption{
-		{"One Hour", "one_hour"},
-		{"One Day", "one_day"},
-		{"One Week", "one_week"},
-		{"One Month", "one_month"},
+		{"One Hour", "1h"},
+		{"One Day", "1d"},
+		{"One Week", "1w"},
+		{"One Month", "1m"},
 	}
 }
 
