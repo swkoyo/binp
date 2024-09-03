@@ -77,8 +77,8 @@ var createCmd = &cobra.Command{
 }
 
 func init() {
-	createCmd.Flags().StringP("language", "l", "plaintext", "The language of the snippet")
-	createCmd.Flags().StringP("expiry", "e", "1h", "The expiry time of the snippet. Valid values: %v")
+	createCmd.Flags().StringP("language", "l", "txt", "The language of the snippet")
+	createCmd.Flags().StringP("expiry", "e", "1m", "The expiry time of the snippet. Valid values: %v")
 	createCmd.Flags().BoolP("burn-after-read", "b", false, "Burn the snippet after reading it once")
 	rootCmd.AddCommand(createCmd)
 }

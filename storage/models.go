@@ -28,10 +28,9 @@ type SelectOption struct {
 type SnippetExpiration int
 
 const (
-	OneHour SnippetExpiration = iota
+	OneMinute SnippetExpiration = iota
+	OneHour
 	OneDay
-	OneWeek
-	OneMonth
 )
 
 var ValidLanguages = []SelectOption{
@@ -54,10 +53,9 @@ var ValidLanguages = []SelectOption{
 }
 
 var ValidExpirations = []SelectOption{
+	{"One Minute", "1m"},
 	{"One Hour", "1h"},
 	{"One Day", "1d"},
-	{"One Week", "1w"},
-	{"One Month", "1m"},
 }
 
 func GetValidLanguages() []string {
@@ -96,62 +94,27 @@ func IsValidLanguage(value string) bool {
 
 func GetSnippetExpiration(value string) SnippetExpiration {
 	switch value {
+	case "1m":
+		return OneMinute
 	case "1h":
 		return OneHour
 	case "1d":
 		return OneDay
-	case "1w":
-		return OneWeek
-	case "1m":
-		return OneMonth
 	default:
-		return OneHour
-	}
-}
-
-func GetCodeLanguageOptions() []SelectOption {
-	return []SelectOption{
-		{"Plaintext", "plaintext"},
-		{"Bash", "bash"},
-		{"CSS", "css"},
-		{"Docker", "docker"},
-		{"Go", "go"},
-		{"HTML", "html"},
-		{"JavaScript", "javascript"},
-		{"JSON", "json"},
-		{"Lua", "lua"},
-		{"Nix", "nix"},
-		{"Python", "python"},
-		{"Rust", "rust"},
-		{"SQL", "sql"},
-		{"TOML", "toml"},
-		{"TypeScript", "typescript"},
-		{"YAML", "yaml"},
-	}
-}
-
-func GetSnippetExpirationOptions() []SelectOption {
-	return []SelectOption{
-		{"One Hour", "1h"},
-		{"One Day", "1d"},
-		{"One Week", "1w"},
-		{"One Month", "1m"},
+		return OneMinute
 	}
 }
 
 func (s SnippetExpiration) GetExpirationTime() *time.Time {
 	switch s {
+	case OneMinute:
+		t := time.Now().UTC().Add(time.Minute)
+		return &t
 	case OneHour:
 		t := time.Now().UTC().Add(time.Hour)
 		return &t
 	case OneDay:
 		t := time.Now().UTC().Add(time.Hour * 24)
-		return &t
-	case OneWeek:
-		t := time.Now().UTC().Add(time.Hour * 24 * 7)
-		return &t
-	case OneMonth:
-		t := time.Now().UTC().Add(time.Hour * 24 * 30)
 		return &t
 	default:
 		return nil
