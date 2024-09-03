@@ -24,12 +24,12 @@ var createCmd = &cobra.Command{
 		text := args[0]
 
 		if !storage.IsValidExpiration(expiry) {
-			fmt.Fprintln(os.Stderr, "Error: Invalid expiry. Valid values are 1h, 1d, 1w, 1m")
+			fmt.Fprintln(os.Stderr, "Error: Invalid expiry. Valid values:", storage.GetValidExpirations())
 			os.Exit(1)
 		}
 
 		if !storage.IsValidLanguage(language) {
-			fmt.Fprintln(os.Stderr, "Error: Invalid language. Valid values are plaintext, bash, css, docker, go, html, javascript, json, markdown, python, ruby, typescript")
+			fmt.Fprintln(os.Stderr, "Error: Invalid language. Valid values:", storage.GetValidLanguages())
 			os.Exit(1)
 		}
 
@@ -72,8 +72,8 @@ var createCmd = &cobra.Command{
 }
 
 func init() {
-	createCmd.Flags().StringP("language", "l", "plaintext", "The language of the snippet (plaintext, bash, css, docker, go, html, javascript, json, markdown, python, ruby, typescript)")
-	createCmd.Flags().StringP("expiry", "e", "1h", "The expiry time of the snippet (1h, 1d, 1w, 1m)")
+	createCmd.Flags().StringP("language", "l", "plaintext", fmt.Sprintf("The language of the snippet. Valid values: %v", storage.GetValidLanguages()))
+	createCmd.Flags().StringP("expiry", "e", "1h", fmt.Sprintf("The expiry time of the snippet. Valid values: %v", storage.GetValidExpirations()))
 	createCmd.Flags().BoolP("burn-after-read", "b", false, "Burn the snippet after reading it once")
 	rootCmd.AddCommand(createCmd)
 }

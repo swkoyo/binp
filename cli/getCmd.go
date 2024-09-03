@@ -49,6 +49,7 @@ var getCmd = &cobra.Command{
 			} else {
 				fmt.Fprintln(os.Stderr, "Error: ", string(resBody))
 			}
+			os.Exit(1)
 		}
 
 		if jsonPrint {

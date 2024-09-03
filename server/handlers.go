@@ -15,8 +15,8 @@ import (
 type PostSnippetReq struct {
 	Text          string `form:"text" json:"text" validate:"required,min=1,max=10000"`
 	BurnAfterRead bool   `form:"burn_after_read" json:"burn_after_read"`
-	Language      string `form:"language" json:"language" validate:"required,oneof=plaintext bash css docker go html javascript json markdown python ruby typescript"`
-	Expiry        string `form:"expiry" json:"expiry" validate:"required,oneof=1h 1d 1w 1m"`
+	Language      string `form:"language" json:"language" validate:"required"`
+	Expiry        string `form:"expiry" json:"expiry" validate:"required"`
 }
 
 func (s *Server) HandleGetIndex(c echo.Context) error {
@@ -113,6 +113,24 @@ func (s *Server) HandlePostSnippet(c echo.Context) error {
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 		} else {
 			return err
+		}
+	}
+
+	if !storage.IsValidLanguage(data.Language) {
+		logger.Warn().Str("language", data.Language).Msg("Invalid language")
+		if strings.HasPrefix(contentType, "application/json") {
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid language"})
+		} else {
+			return fmt.Errorf("Invalid language")
+		}
+	}
+
+	if !storage.IsValidExpiration(data.Expiry) {
+		logger.Warn().Str("expiry", data.Expiry).Msg("Invalid expiry")
+		if strings.HasPrefix(contentType, "application/json") {
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid expiry"})
+		} else {
+			return fmt.Errorf("Invalid expiry")
 		}
 	}
 

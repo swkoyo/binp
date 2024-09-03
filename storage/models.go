@@ -3,7 +3,6 @@ package storage
 import (
 	"database/sql"
 	"fmt"
-	"slices"
 	"strings"
 	"time"
 
@@ -35,38 +34,64 @@ const (
 	OneMonth
 )
 
-var ValidExpirations = []string{
-	"1h",
-	"1d",
-	"1w",
-	"1m",
+var ValidLanguages = []SelectOption{
+	{"Plaintext", "txt"},
+	{"Bash", "bash"},
+	{"CSS", "css"},
+	{"Docker", "dockerfile"},
+	{"Go", "go"},
+	{"HTML", "html"},
+	{"JavaScript", "javascript"},
+	{"JSON", "json"},
+	{"Lua", "lua"},
+	{"Nix", "nix"},
+	{"Python", "python"},
+	{"Rust", "rust"},
+	{"SQL", "sql"},
+	{"TOML", "toml"},
+	{"TypeScript", "typescript"},
+	{"YAML", "yaml"},
 }
 
-var ValidLanguages = []string{
-	"plaintext",
-	"bash",
-	"css",
-	"docker",
-	"go",
-	"html",
-	"javascript",
-	"json",
-	"lua",
-	"nix",
-	"python",
-	"rust",
-	"sql",
-	"toml",
-	"typescript",
-	"yaml",
+var ValidExpirations = []SelectOption{
+	{"One Hour", "1h"},
+	{"One Day", "1d"},
+	{"One Week", "1w"},
+	{"One Month", "1m"},
+}
+
+func GetValidLanguages() []string {
+	var langs []string
+	for _, v := range ValidLanguages {
+		langs = append(langs, v.Value)
+	}
+	return langs
+}
+
+func GetValidExpirations() []string {
+	var expirations []string
+	for _, v := range ValidExpirations {
+		expirations = append(expirations, v.Value)
+	}
+	return expirations
 }
 
 func IsValidExpiration(value string) bool {
-	return slices.Contains(ValidExpirations, value)
+	for _, v := range ValidExpirations {
+		if v.Value == value {
+			return true
+		}
+	}
+	return false
 }
 
 func IsValidLanguage(value string) bool {
-	return slices.Contains(ValidLanguages, value)
+	for _, v := range ValidLanguages {
+		if v.Value == value {
+			return true
+		}
+	}
+	return false
 }
 
 func GetSnippetExpiration(value string) SnippetExpiration {
