@@ -21,4 +21,8 @@ build-api: build-templ build-tailwind
 	echo "Building api"
 	go build -o $(TEMP_DIR)/api ./cmd/api/main.go
 
-.PHONY: build-cron build-chroma build-templ build-tailwind build-api
+build-cli:
+	echo "Building cli"
+	go build -o $(TEMP_DIR)/binp ./cmd/cli/main.go
+
+.PHONY: build-cron build-chroma build-templ build-tailwind build-api build-cli

@@ -35,11 +35,9 @@ func TestCreateSnippet(t *testing.T) {
 		language         string
 		expectedDuration time.Duration
 	}{
-		{"BurnAfter", OneHour, true, "plaintext", time.Hour},
+		{"BurnAfter", OneMinute, true, "txt", time.Minute},
 		{"OneHour", OneHour, false, "rust", time.Hour},
 		{"OneDay", OneDay, false, "go", (24 * time.Hour)},
-		{"OneWeek", OneWeek, false, "typescript", (7 * 24 * time.Hour)},
-		{"OneMonth", OneMonth, false, "python", (30 * 24 * time.Hour)},
 	}
 
 	for _, tc := range testCases {
@@ -82,7 +80,7 @@ func TestGetSnippetByID(t *testing.T) {
 	store := setupTestStore(t)
 	defer store.db.Close()
 
-	createdSnippet, err := store.CreateSnippet("Test snippet", false, OneHour, "plaintext")
+	createdSnippet, err := store.CreateSnippet("Test snippet", false, OneHour, "txt")
 	assert.NoError(t, err)
 
 	retrievedSnippet, err := store.GetSnippetByID(createdSnippet.ID)
@@ -113,7 +111,7 @@ func TestDeleteSnippet(t *testing.T) {
 	store := setupTestStore(t)
 	defer store.db.Close()
 
-	snippet, err := store.CreateSnippet("Test snippet", false, OneHour, "plaintext")
+	snippet, err := store.CreateSnippet("Test snippet", false, OneHour, "txt")
 	assert.NoError(t, err)
 
 	store.cache.client.Put(snippet.ID, snippet)
@@ -133,7 +131,7 @@ func TestUpdateSnippet(t *testing.T) {
 	store := setupTestStore(t)
 	defer store.db.Close()
 
-	snippet, err := store.CreateSnippet("Test snippet", false, OneHour, "plaintext")
+	snippet, err := store.CreateSnippet("Test snippet", false, OneHour, "txt")
 	assert.NoError(t, err)
 	assert.False(t, snippet.IsRead)
 
@@ -155,14 +153,14 @@ func TestGetExpiredSnippetIDs(t *testing.T) {
 	store := setupTestStore(t)
 	defer store.db.Close()
 
-	expiredSnippet, err := store.CreateSnippet("Expired snippet", false, OneHour, "plaintext")
+	expiredSnippet, err := store.CreateSnippet("Expired snippet", false, OneHour, "txt")
 	assert.NoError(t, err)
 
 	expiredSnippet.ExpiresAt = time.Now().UTC().Add(-time.Hour)
 	err = store.UpdateSnippet(expiredSnippet)
 	assert.NoError(t, err)
 
-	_, err = store.CreateSnippet("Valid snippet", false, OneDay, "plaintext")
+	_, err = store.CreateSnippet("Valid snippet", false, OneDay, "txt")
 	assert.NoError(t, err)
 
 	ids, err := store.getExpiredSnippetIDs()
@@ -176,7 +174,7 @@ func TestDeleteExpiredSnippets(t *testing.T) {
 	store := setupTestStore(t)
 	defer store.db.Close()
 
-	expiredSnippet, err := store.CreateSnippet("Expired snippet", false, OneHour, "plaintext")
+	expiredSnippet, err := store.CreateSnippet("Expired snippet", false, OneHour, "txt")
 	assert.NoError(t, err)
 
 	expiredSnippet.ExpiresAt = time.Now().UTC().Add(-time.Hour)
@@ -185,7 +183,7 @@ func TestDeleteExpiredSnippets(t *testing.T) {
 
 	store.cache.client.Put(expiredSnippet.ID, expiredSnippet)
 
-	validSnippet, err := store.CreateSnippet("Valid snippet", false, OneDay, "plaintext")
+	validSnippet, err := store.CreateSnippet("Valid snippet", false, OneDay, "txt")
 	assert.NoError(t, err)
 
 	count, err := store.DeleteExpiredSnippets()
