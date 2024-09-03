@@ -16,6 +16,10 @@ var getCmd = &cobra.Command{
 	Short: "Get a snippet",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
+		baseURL := os.Getenv("BINP_BASE_URL")
+		if baseURL == "" {
+			baseURL = "https://binp.io"
+		}
 		prettyPrint, _ := cmd.Flags().GetBool("pretty-print")
 		jsonPrint, _ := cmd.Flags().GetBool("json")
 		ID := args[0]
@@ -32,7 +36,7 @@ var getCmd = &cobra.Command{
 			}
 		}
 
-		resp, err := HTTPGet(fmt.Sprintf("http://localhost:8080/%s", ID))
+		resp, err := HTTPGet(fmt.Sprintf("%s/%s", baseURL, ID))
 		defer resp.Body.Close()
 
 		resBody, err := io.ReadAll(resp.Body)

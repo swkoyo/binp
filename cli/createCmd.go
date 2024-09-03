@@ -33,6 +33,10 @@ var createCmd = &cobra.Command{
 	Short: "Create a new snippet",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
+		baseURL := os.Getenv("BINP_BASE_URL")
+		if baseURL == "" {
+			baseURL = "https://binp.io"
+		}
 		language, _ := cmd.Flags().GetString("language")
 		expiry, _ := cmd.Flags().GetString("expiry")
 		burnAfterRead, _ := cmd.Flags().GetBool("burn")
@@ -51,7 +55,7 @@ var createCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		req := bytes.NewBuffer(postBody)
-		resp, err := HTTPPost("http://localhost:8080/snippet", req)
+		resp, err := HTTPPost(fmt.Sprintf("%s/snippet", baseURL), req)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "Error: ", err)
 			os.Exit(1)
@@ -64,7 +68,7 @@ var createCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		if resp.StatusCode != 200 {
+		if resp.StatusCode != 201 {
 			fmt.Fprintln(os.Stderr, "Error: ", string(resBody))
 			os.Exit(1)
 		}
