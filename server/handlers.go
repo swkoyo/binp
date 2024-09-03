@@ -119,7 +119,7 @@ func (s *Server) HandlePostSnippet(c echo.Context) error {
 	if !storage.IsValidLanguage(data.Language) {
 		logger.Warn().Str("language", data.Language).Msg("Invalid language")
 		if strings.HasPrefix(contentType, "application/json") {
-			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid language"})
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": fmt.Sprintf("Invalid language. Options: %v", storage.GetValidLanguages())})
 		} else {
 			return fmt.Errorf("Invalid language")
 		}
@@ -128,7 +128,7 @@ func (s *Server) HandlePostSnippet(c echo.Context) error {
 	if !storage.IsValidExpiration(data.Expiry) {
 		logger.Warn().Str("expiry", data.Expiry).Msg("Invalid expiry")
 		if strings.HasPrefix(contentType, "application/json") {
-			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid expiry"})
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": fmt.Sprintf("Invalid expiry. Options: %v", storage.GetValidExpirations())})
 		} else {
 			return fmt.Errorf("Invalid expiry")
 		}

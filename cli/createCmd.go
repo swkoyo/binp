@@ -64,6 +64,11 @@ var createCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
+		if resp.StatusCode != 200 {
+			fmt.Fprintln(os.Stderr, "Error: ", string(resBody))
+			os.Exit(1)
+		}
+
 		createdSnippet := &Snippet{}
 		err = json.Unmarshal(resBody, createdSnippet)
 		if err != nil {
