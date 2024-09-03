@@ -59,3 +59,30 @@ templ Select(options []storage.SelectOption, attrs templ.Attributes) {
 		}
 	</select>
 }
+
+templ SnippetDetails(snippet *storage.Snippet, highlightedCode string) {
+	@Navbar() {
+		@Button(
+			"Copy URL",
+			templ.Attributes{
+				"_":    "on click writeText(window.location.origin + '/' + #snippet-id.innerText) into the navigator's clipboard",
+				"type": "button",
+			},
+		)
+		@Button(
+			"Copy Text",
+			templ.Attributes{
+				"_":    "on click writeText(#snippet-raw-text.innerText) into the navigator's clipboard",
+				"type": "button",
+			},
+		)
+	}
+	@Container() {
+		{ children... }
+		<div hidden class="sr-only absolute" id="snippet-raw-text">{ snippet.Text }</div>
+		<div hidden class="sr-only absolute" id="snippet-id">{ snippet.ID }</div>
+		<div class="p-4">
+			@templ.Raw(highlightedCode)
+		</div>
+	}
+}

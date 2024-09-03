@@ -25,6 +25,8 @@ templ Index() {
 					"id":         "snippet-submit-btn",
 					"hx-post":    "/snippet",
 					"hx-include": "[name='text'], [name='language'], [name='expiry'], [name='burn_after_read']",
+					"hx-target":  "#main",
+					"hx-swap":    "innerHTML",
 				},
 			)
 		}
@@ -58,29 +60,7 @@ templ Index() {
 
 templ SnippetPage(snippet *storage.Snippet, highlightedCode string) {
 	@Base() {
-		@Navbar() {
-			@Button(
-				"Copy URL",
-				templ.Attributes{
-					"_":    "on click writeText(window.location.origin + '/' + #snippet-id.innerText) into the navigator's clipboard",
-					"type": "button",
-				},
-			)
-			@Button(
-				"Copy Text",
-				templ.Attributes{
-					"_":    "on click writeText(#snippet-raw-text.innerText) into the navigator's clipboard",
-					"type": "button",
-				},
-			)
-		}
-		@Container() {
-			<div hidden class="sr-only absolute" id="snippet-raw-text">{ snippet.Text }</div>
-			<div hidden class="sr-only absolute" id="snippet-id">{ snippet.ID }</div>
-			<div class="p-4">
-				@templ.Raw(highlightedCode)
-			</div>
-		}
+		@SnippetDetails(snippet, highlightedCode)
 	}
 }
 

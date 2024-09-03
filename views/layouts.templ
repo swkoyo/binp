@@ -16,7 +16,7 @@ templ Base() {
 			<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png"/>
 			<link rel="manifest" href="assets/site.webmanifest"/>
 		</head>
-		<body class="dark bg-white dark:bg-gray-900 text-black dark:text-white flex min-h-screen h-screen">
+		<body id="main" class="dark bg-white dark:bg-gray-900 text-black dark:text-white flex min-h-screen h-screen">
 			{ children... }
 		</body>
 	</html>
@@ -34,7 +34,7 @@ templ Navbar() {
 }
 
 templ Container() {
-	<div class="flex pt-16 h-full w-full max-w-screen-xl mx-auto">
+	<div id="container" class="flex flex-col pt-16 h-full w-full max-w-screen-xl mx-auto">
 		{ children... }
 	</div>
 }

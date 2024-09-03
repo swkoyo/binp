@@ -28,14 +28,17 @@ func (s *Server) HandleGetSnippet(c echo.Context) error {
 	logger := util.GetLoggerWithRequestID(c)
 	id := c.Param("id")
 	snippet, err := s.store.GetSnippetByID(id)
+
 	if err != nil {
 		logger.Error().Err(err).Msg("GetSnippetByID")
 		return err
 	}
+
 	if snippet == nil {
 		logger.Warn().Str("id", id).Msg("Snippet not found")
 		return Render(c, http.StatusNotFound, views.NotFoundPage())
 	}
+
 	logger.Debug().Interface("snippet", snippet).Msg("Snippet found")
 	if snippet.ExpiresAt.Before(time.Now().UTC()) {
 		logger.Warn().Str("id", id).Msg("Snippet expired")
@@ -45,13 +48,16 @@ func (s *Server) HandleGetSnippet(c echo.Context) error {
 		}
 		return Render(c, http.StatusNotFound, views.NotFoundPage())
 	}
+
 	if !snippet.IsRead {
 		snippet.IsRead = true
 		err = s.store.UpdateSnippet(snippet)
 		if err != nil {
 			return err
 		}
-	} else if snippet.BurnAfterRead {
+	}
+
+	if snippet.BurnAfterRead {
 		err = s.store.DeleteSnippet(snippet.ID)
 		if err != nil {
 			return err
@@ -84,7 +90,13 @@ func (s *Server) HandlePostSnippet(c echo.Context) error {
 		logger.Error().Err(err).Msg("CreateSnippet")
 		return err
 	}
-	c.Response().Header().Set("HX-Redirect", fmt.Sprintf("/%s", snippet.ID))
-	c.Response().WriteHeader(http.StatusOK)
-	return nil
+
+	highlightedCode, err := util.HighlightCode(snippet.Text, snippet.Language)
+	if err != nil {
+		logger.Error().Err(err).Msg("HighlightCode")
+		highlightedCode = snippet.Text
+	}
+
+	c.Response().Header().Set("Hx-Push-Url", fmt.Sprintf("/%s", snippet.ID))
+	return Render(c, http.StatusCreated, views.SnippetDetails(snippet, highlightedCode))
 }
