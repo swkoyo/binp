@@ -1,8 +1,6 @@
 package cli
 
 import (
-	"binp/storage"
-	"binp/util"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -34,7 +32,7 @@ var getCmd = &cobra.Command{
 			}
 		}
 
-		resp, err := util.HTTPGet(fmt.Sprintf("http://localhost:8080/%s", ID))
+		resp, err := HTTPGet(fmt.Sprintf("http://localhost:8080/%s", ID))
 		defer resp.Body.Close()
 
 		resBody, err := io.ReadAll(resp.Body)
@@ -57,7 +55,7 @@ var getCmd = &cobra.Command{
 			os.Exit(0)
 		}
 
-		snippet := &storage.Snippet{}
+		snippet := &Snippet{}
 		err = json.Unmarshal(resBody, snippet)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "Error: ", err)

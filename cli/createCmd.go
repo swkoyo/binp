@@ -1,17 +1,32 @@
 package cli
 
 import (
-	"binp/server"
-	"binp/storage"
-	"binp/util"
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
 	"os"
+	"time"
 
 	"github.com/spf13/cobra"
 )
+
+type PostSnippetReq struct {
+	Text          string `json:"text"`
+	BurnAfterRead bool   `json:"burn_after_read"`
+	Language      string `json:"language"`
+	Expiry        string `json:"expiry"`
+}
+
+type Snippet struct {
+	ID            string    `json:"id"`
+	Text          string    `json:"text"`
+	BurnAfterRead bool      `json:"burn_after_read"`
+	IsRead        bool      `json:"is_read"`
+	Language      string    `json:"language"`
+	CreatedAt     time.Time `json:"created_at"`
+	ExpiresAt     time.Time `json:"expires_at"`
+}
 
 var createCmd = &cobra.Command{
 	Use:   "create",
@@ -23,17 +38,7 @@ var createCmd = &cobra.Command{
 		burnAfterRead, _ := cmd.Flags().GetBool("burn")
 		text := args[0]
 
-		if !storage.IsValidExpiration(expiry) {
-			fmt.Fprintln(os.Stderr, "Error: Invalid expiry. Valid values:", storage.GetValidExpirations())
-			os.Exit(1)
-		}
-
-		if !storage.IsValidLanguage(language) {
-			fmt.Fprintln(os.Stderr, "Error: Invalid language. Valid values:", storage.GetValidLanguages())
-			os.Exit(1)
-		}
-
-		snippetBody := &server.PostSnippetReq{
+		snippetBody := &PostSnippetReq{
 			Text:          text,
 			BurnAfterRead: burnAfterRead,
 			Expiry:        expiry,
@@ -46,7 +51,7 @@ var createCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		req := bytes.NewBuffer(postBody)
-		resp, err := util.HTTPPost("http://localhost:8080/snippet", req)
+		resp, err := HTTPPost("http://localhost:8080/snippet", req)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "Error: ", err)
 			os.Exit(1)
@@ -59,7 +64,7 @@ var createCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		createdSnippet := &storage.Snippet{}
+		createdSnippet := &Snippet{}
 		err = json.Unmarshal(resBody, createdSnippet)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "Error: ", err)
@@ -72,8 +77,8 @@ var createCmd = &cobra.Command{
 }
 
 func init() {
-	createCmd.Flags().StringP("language", "l", "plaintext", fmt.Sprintf("The language of the snippet. Valid values: %v", storage.GetValidLanguages()))
-	createCmd.Flags().StringP("expiry", "e", "1h", fmt.Sprintf("The expiry time of the snippet. Valid values: %v", storage.GetValidExpirations()))
+	createCmd.Flags().StringP("language", "l", "plaintext", "The language of the snippet")
+	createCmd.Flags().StringP("expiry", "e", "1h", "The expiry time of the snippet. Valid values: %v")
 	createCmd.Flags().BoolP("burn-after-read", "b", false, "Burn the snippet after reading it once")
 	rootCmd.AddCommand(createCmd)
 }
