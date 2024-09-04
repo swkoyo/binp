@@ -104,7 +104,7 @@ binp also comes with a CLI tool that allows you to interact with the pastebin se
 To build the CLI tool:
 
 ```bash
-go build -o tmp/binp-cli cmd/cli/main.go
+go build -o tmp/binp cmd/cli/main.go
 ```
 
 ### Usage
@@ -112,7 +112,7 @@ go build -o tmp/binp-cli cmd/cli/main.go
 To see the available commands and options:
 
 ```bash
-./tmp/binp-cli --help
+./tmp/binp --help
 ```
 
 To create a new paste:
@@ -123,7 +123,7 @@ To create a new paste:
 # -b, --burn:  Whether the paste should be deleted after viewing (default: false)
 # -e, --expiry:  The expiry time of the paste (options: "1m", "1h", "1d". default: "1m")
 
-./tmp/binp-cli create <text>
+./tmp/binp create <text>
 ```
 
 To get a paste by its ID:
@@ -133,7 +133,7 @@ To get a paste by its ID:
 # -j, --json:  Output the paste as JSON
 # -p, --pretty:  Pretty print the JSON output (requires bat to be installed)
 
-./tmp/binp-cli get <id>
+./tmp/binp get <id>
 ```
 
 ## 🤝 Contributing
