@@ -79,7 +79,7 @@ var createCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		fmt.Println(createdSnippet.ID)
+		fmt.Println(fmt.Sprintf("%s/%s", baseURL, createdSnippet.ID))
 		os.Exit(0)
 	},
 }
