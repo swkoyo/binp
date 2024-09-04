@@ -20,8 +20,6 @@ type PostSnippetReq struct {
 }
 
 func (s *Server) HandleGetIndex(c echo.Context) error {
-	logger := util.GetLoggerWithRequestID(c)
-	logger.Info().Msg("Index page")
 	return Render(c, http.StatusOK, views.Index())
 }
 
@@ -32,16 +30,16 @@ func (s *Server) HandleGetSnippet(c echo.Context) error {
 
 	snippet, err := s.store.GetSnippetByID(id)
 	if err != nil {
-		logger.Error().Err(err).Msg("GetSnippetByID")
+		logger.Error().Str("ID", id).Err(err).Msg("Error while getting snippet")
 		if strings.HasPrefix(contentType, "application/json") {
-			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid ID"})
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Internal server error"})
 		} else {
-			return Render(c, http.StatusNotFound, views.ErrorPage())
+			return Render(c, http.StatusInternalServerError, views.ErrorPage())
 		}
 	}
 
 	if snippet == nil {
-		logger.Warn().Str("id", id).Msg("Snippet not found")
+		logger.Warn().Str("ID", id).Msg("Snippet not found")
 		if strings.HasPrefix(contentType, "application/json") {
 			return c.JSON(http.StatusNotFound, map[string]string{"error": "Snippet not found"})
 		} else {
@@ -49,12 +47,17 @@ func (s *Server) HandleGetSnippet(c echo.Context) error {
 		}
 	}
 
-	logger.Debug().Interface("snippet", snippet).Msg("Snippet found")
+	logger.Debug().Str("ID", id).Interface("snippet", snippet).Msg("Snippet found")
 	if snippet.ExpiresAt.Before(time.Now().UTC()) {
-		logger.Warn().Str("id", id).Msg("Snippet expired")
+		logger.Warn().Str("ID", id).Msg("Snippet expired")
 		err = s.store.DeleteSnippet(snippet.ID)
 		if err != nil {
-			logger.Error().Err(err).Msg("DeleteSnippet")
+			logger.Error().Str("ID", id).Err(err).Msg("Error while deleting expired snippet")
+			if strings.HasPrefix(contentType, "application/json") {
+				return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Internal server error"})
+			} else {
+				return Render(c, http.StatusInternalServerError, views.ErrorPage())
+			}
 		}
 		if strings.HasPrefix(contentType, "application/json") {
 			return c.JSON(http.StatusNotFound, map[string]string{"error": "Snippet not found"})
@@ -64,9 +67,15 @@ func (s *Server) HandleGetSnippet(c echo.Context) error {
 	}
 
 	if snippet.BurnAfterRead {
+		logger.Info().Str("ID", id).Msg("Burned snippet")
 		err = s.store.DeleteSnippet(snippet.ID)
 		if err != nil {
-			return Render(c, http.StatusNotFound, views.ErrorPage())
+			logger.Error().Str("ID", id).Err(err).Msg("Error while deleting burned snippet")
+			if strings.HasPrefix(contentType, "application/json") {
+				return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Internal server error"})
+			} else {
+				return Render(c, http.StatusInternalServerError, views.ErrorPage())
+			}
 		}
 	}
 
@@ -76,7 +85,7 @@ func (s *Server) HandleGetSnippet(c echo.Context) error {
 	} else {
 		highlightedCode, err := util.HighlightCode(snippet.Text, snippet.Language)
 		if err != nil {
-			logger.Error().Err(err).Msg("HighlightCode")
+			logger.Error().Err(err).Msg("Error while highlighting code")
 			highlightedCode = snippet.Text
 		}
 
@@ -90,7 +99,7 @@ func (s *Server) HandlePostSnippet(c echo.Context) error {
 	contentType := c.Request().Header.Get("Content-Type")
 
 	if err := c.Bind(data); err != nil {
-		logger.Error().Err(err).Msg("Bind")
+		logger.Error().Err(err).Msg("Error while binding data")
 		if strings.HasPrefix(contentType, "application/json") {
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid JSON"})
 		} else {
@@ -98,9 +107,9 @@ func (s *Server) HandlePostSnippet(c echo.Context) error {
 		}
 	}
 
-	logger.Debug().Interface("data", data).Msg("PostSnippet")
+	logger.Debug().Interface("data", data).Msg("Creating snippet")
 	if err := c.Validate(data); err != nil {
-		logger.Error().Err(err).Msg("Validate")
+		logger.Error().Err(err).Msg("Error while validating data")
 		if strings.HasPrefix(contentType, "application/json") {
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 		} else {
@@ -128,11 +137,11 @@ func (s *Server) HandlePostSnippet(c echo.Context) error {
 
 	snippet, err := s.store.CreateSnippet(data.Text, data.BurnAfterRead, storage.GetSnippetExpiration(data.Expiry), data.Language)
 	if err != nil {
-		logger.Error().Err(err).Msg("CreateSnippet")
+		logger.Error().Err(err).Msg("Error while creating snippet")
 		if strings.HasPrefix(contentType, "application/json") {
-			return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 		} else {
-			return Render(c, http.StatusBadRequest, views.ErrorAlert("Failed to create snippet"))
+			return Render(c, http.StatusInternalServerError, views.ErrorAlert("Failed to create snippet"))
 		}
 	}
 
@@ -142,7 +151,7 @@ func (s *Server) HandlePostSnippet(c echo.Context) error {
 	} else {
 		highlightedCode, err := util.HighlightCode(snippet.Text, snippet.Language)
 		if err != nil {
-			logger.Error().Err(err).Msg("HighlightCode")
+			logger.Error().Err(err).Msg("Error while highlighting code")
 			highlightedCode = snippet.Text
 		}
 
