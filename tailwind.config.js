@@ -1,7 +1,10 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: "selector",
-  content: ["./views/**/*.{go,js,templ,html}"],
+  content: [
+    "./views/**/*.{go,js,templ,html}",
+    "./node_modules/flowbite/**/*.js",
+  ],
   theme: {
     // colors: {
     //   white: "#DADDE1",
@@ -30,5 +33,5 @@ module.exports = {
       },
     },
   },
-  plugins: [require("@tailwindcss/forms")],
+  plugins: [require("@tailwindcss/forms"), require("flowbite/plugin")],
 };
