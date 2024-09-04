@@ -13,6 +13,9 @@ type DBStore struct {
 
 func NewDB() (*DBStore, error) {
 	dbPath := os.Getenv("DB_PATH")
+	if dbPath == "" {
+		dbPath = "./db.sqlite"
+	}
 	db, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
 		return nil, err
