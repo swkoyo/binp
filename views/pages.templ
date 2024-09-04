@@ -4,7 +4,7 @@ import "binp/storage"
 
 templ Index() {
 	@Base() {
-		@Navbar() {
+		@Navbar(templ.Attributes{}) {
 			<div class="flex items-center space-x-2">
 				@Select(
 					storage.ValidLanguages,
@@ -20,13 +20,14 @@ templ Index() {
 			@Button(
 				"Submit",
 				templ.Attributes{
-					"disabled":   true,
-					"type":       "submit",
-					"id":         "snippet-submit-btn",
-					"hx-post":    "/snippet",
-					"hx-include": "[name='text'], [name='language'], [name='expiry'], [name='burn_after_read']",
-					"hx-target":  "#main",
-					"hx-swap":    "innerHTML",
+					"disabled":        true,
+					"type":            "submit",
+					"id":              "snippet-submit-btn",
+					"hx-post":         "/snippet",
+					"hx-include":      "[name='text'], [name='language'], [name='expiry'], [name='burn_after_read']",
+					"hx-target":       "#content",
+					"hx-target-error": "#alert",
+					"hx-swap":         "outerHTML",
 				},
 			)
 		}
@@ -60,17 +61,51 @@ templ Index() {
 
 templ SnippetPage(snippet *storage.Snippet, highlightedCode string) {
 	@Base() {
-		@SnippetDetails(snippet, highlightedCode)
+		@Navbar(templ.Attributes{}) {
+			@Button(
+				"Copy URL",
+				templ.Attributes{
+					"_":    "on click writeText(window.location.origin + '/' + #snippet-id.innerText) into the navigator's clipboard",
+					"type": "button",
+				},
+			)
+			@Button(
+				"Copy Text",
+				templ.Attributes{
+					"_":    "on click writeText(#snippet-raw-text.innerText) into the navigator's clipboard",
+					"type": "button",
+				},
+			)
+		}
+		@Container() {
+			<div hidden class="sr-only absolute" id="snippet-raw-text">{ snippet.Text }</div>
+			<div hidden class="sr-only absolute" id="snippet-id">{ snippet.ID }</div>
+			<div class="p-4">
+				@templ.Raw(highlightedCode)
+			</div>
+		}
 	}
 }
 
 templ NotFoundPage() {
 	@Base() {
-		@Navbar()
+		@Navbar(templ.Attributes{})
 		@Container() {
 			<div class="flex flex-col text-center mx-auto pt-4">
 				<h1 class="text-2xl">404</h1>
 				<p>Bottom text</p>
+			</div>
+		}
+	}
+}
+
+templ ErrorPage() {
+	@Base() {
+		@Navbar(templ.Attributes{})
+		@Container() {
+			<div class="flex flex-col text-center mx-auto pt-4">
+				<h1 class="text-2xl">500</h1>
+				<p>Something went wrong</p>
 			</div>
 		}
 	}

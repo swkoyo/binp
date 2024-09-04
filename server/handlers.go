@@ -36,7 +36,7 @@ func (s *Server) HandleGetSnippet(c echo.Context) error {
 		if strings.HasPrefix(contentType, "application/json") {
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid ID"})
 		} else {
-			return err
+			return Render(c, http.StatusNotFound, views.ErrorPage())
 		}
 	}
 
@@ -67,14 +67,14 @@ func (s *Server) HandleGetSnippet(c echo.Context) error {
 		snippet.IsRead = true
 		err = s.store.UpdateSnippet(snippet)
 		if err != nil {
-			return err
+			return Render(c, http.StatusNotFound, views.ErrorPage())
 		}
 	}
 
 	if snippet.BurnAfterRead {
 		err = s.store.DeleteSnippet(snippet.ID)
 		if err != nil {
-			return err
+			return Render(c, http.StatusNotFound, views.ErrorPage())
 		}
 	}
 
@@ -102,7 +102,7 @@ func (s *Server) HandlePostSnippet(c echo.Context) error {
 		if strings.HasPrefix(contentType, "application/json") {
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid JSON"})
 		} else {
-			return err
+			return Render(c, http.StatusBadRequest, views.ErrorAlert("Invalid request data"))
 		}
 	}
 
@@ -112,7 +112,7 @@ func (s *Server) HandlePostSnippet(c echo.Context) error {
 		if strings.HasPrefix(contentType, "application/json") {
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 		} else {
-			return err
+			return Render(c, http.StatusBadRequest, views.ErrorAlert("Invalid request data"))
 		}
 	}
 
@@ -121,7 +121,7 @@ func (s *Server) HandlePostSnippet(c echo.Context) error {
 		if strings.HasPrefix(contentType, "application/json") {
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": fmt.Sprintf("Invalid language. Options: %v", storage.GetValidLanguages())})
 		} else {
-			return fmt.Errorf("Invalid language")
+			return Render(c, http.StatusBadRequest, views.ErrorAlert("Invalid language"))
 		}
 	}
 
@@ -130,7 +130,7 @@ func (s *Server) HandlePostSnippet(c echo.Context) error {
 		if strings.HasPrefix(contentType, "application/json") {
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": fmt.Sprintf("Invalid expiry. Options: %v", storage.GetValidExpirations())})
 		} else {
-			return fmt.Errorf("Invalid expiry")
+			return Render(c, http.StatusBadRequest, views.ErrorAlert("Invalid expiry"))
 		}
 	}
 
@@ -140,7 +140,7 @@ func (s *Server) HandlePostSnippet(c echo.Context) error {
 		if strings.HasPrefix(contentType, "application/json") {
 			return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 		} else {
-			return err
+			return Render(c, http.StatusBadRequest, views.ErrorAlert("Failed to create snippet"))
 		}
 	}
 
@@ -155,6 +155,6 @@ func (s *Server) HandlePostSnippet(c echo.Context) error {
 		}
 
 		c.Response().Header().Set("Hx-Push-Url", fmt.Sprintf("/%s", snippet.ID))
-		return Render(c, http.StatusCreated, views.SnippetDetails(snippet, highlightedCode))
+		return Render(c, http.StatusCreated, views.PostSnippetResponse(snippet, highlightedCode))
 	}
 }
