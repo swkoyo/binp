@@ -35,7 +35,6 @@ func (s *DBStore) Init() error {
 			text TEXT NOT NULL,
 			burn_after_read INTEGER NOT NULL DEFAULT 0,
 			language TEXT NOT NULL DEFAULT 'txt',
-			is_read INTEGER NOT NULL DEFAULT 0,
 			expires_at DATETIME DEFAULT NULL,
 			created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 		);

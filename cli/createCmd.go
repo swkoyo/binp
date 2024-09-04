@@ -22,7 +22,6 @@ type Snippet struct {
 	ID            string    `json:"id"`
 	Text          string    `json:"text"`
 	BurnAfterRead bool      `json:"burn_after_read"`
-	IsRead        bool      `json:"is_read"`
 	Language      string    `json:"language"`
 	CreatedAt     time.Time `json:"created_at"`
 	ExpiresAt     time.Time `json:"expires_at"`

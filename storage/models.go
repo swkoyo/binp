@@ -14,7 +14,6 @@ type Snippet struct {
 	ID            string    `json:"id"`
 	Text          string    `json:"text"`
 	BurnAfterRead bool      `json:"burn_after_read"`
-	IsRead        bool      `json:"is_read"`
 	Language      string    `json:"language"`
 	CreatedAt     time.Time `json:"created_at"`
 	ExpiresAt     time.Time `json:"expires_at"`
@@ -154,14 +153,14 @@ func (s *Store) GetSnippetByID(id string) (*Snippet, error) {
 		return snippet, nil
 	}
 	query := `
-		SELECT pk, id, text, burn_after_read, is_read, language, expires_at, created_at
+		SELECT pk, id, text, burn_after_read, language, expires_at, created_at
 		FROM snippet
 		WHERE id = ?
 	`
 	row := s.db.client.QueryRow(query, id)
 	var snippet Snippet
 	var expiresAt sql.NullTime
-	err := row.Scan(&snippet.PK, &snippet.ID, &snippet.Text, &snippet.BurnAfterRead, &snippet.IsRead, &snippet.Language, &expiresAt, &snippet.CreatedAt)
+	err := row.Scan(&snippet.PK, &snippet.ID, &snippet.Text, &snippet.BurnAfterRead, &snippet.Language, &expiresAt, &snippet.CreatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
@@ -178,10 +177,10 @@ func (s *Store) GetSnippetByID(id string) (*Snippet, error) {
 func (s *Store) UpdateSnippet(snippet *Snippet) error {
 	query := `
 		UPDATE snippet
-		SET text = ?, burn_after_read = ?, expires_at = ?, is_read = ?, language = ?
+		SET text = ?, burn_after_read = ?, expires_at = ?, language = ?
 		WHERE id = ?
 	`
-	_, err := s.db.client.Exec(query, snippet.Text, snippet.BurnAfterRead, snippet.ExpiresAt, snippet.IsRead, snippet.Language, snippet.ID)
+	_, err := s.db.client.Exec(query, snippet.Text, snippet.BurnAfterRead, snippet.ExpiresAt, snippet.Language, snippet.ID)
 	if err != nil {
 		return err
 	}

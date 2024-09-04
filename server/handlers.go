@@ -63,14 +63,6 @@ func (s *Server) HandleGetSnippet(c echo.Context) error {
 		}
 	}
 
-	if !snippet.IsRead {
-		snippet.IsRead = true
-		err = s.store.UpdateSnippet(snippet)
-		if err != nil {
-			return Render(c, http.StatusNotFound, views.ErrorPage())
-		}
-	}
-
 	if snippet.BurnAfterRead {
 		err = s.store.DeleteSnippet(snippet.ID)
 		if err != nil {

@@ -133,20 +133,19 @@ func TestUpdateSnippet(t *testing.T) {
 
 	snippet, err := store.CreateSnippet("Test snippet", false, OneHour, "txt")
 	assert.NoError(t, err)
-	assert.False(t, snippet.IsRead)
 
 	store.cache.client.Put(snippet.ID, snippet)
 
-	snippet.IsRead = true
+	snippet.Language = "go"
 	err = store.UpdateSnippet(snippet)
 	assert.NoError(t, err)
 
 	cachedSnippet := store.cache.client.Get(snippet.ID)
-	assert.True(t, cachedSnippet.IsRead)
+	assert.Equal(t, "go", cachedSnippet.Language)
 
 	updatedSnippet, err := store.GetSnippetByID(snippet.ID)
 	assert.NoError(t, err)
-	assert.True(t, updatedSnippet.IsRead)
+	assert.Equal(t, "go", updatedSnippet.Language)
 }
 
 func TestGetExpiredSnippetIDs(t *testing.T) {
