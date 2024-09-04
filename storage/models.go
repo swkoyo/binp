@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"binp/util"
 	"database/sql"
 	"fmt"
 	"strings"
@@ -9,14 +10,17 @@ import (
 	gonanoid "github.com/matoous/go-nanoid"
 )
 
+var logger = util.GetLogger()
+
 type Snippet struct {
-	PK            int       `json:"-"`
-	ID            string    `json:"id"`
-	Text          string    `json:"text"`
-	BurnAfterRead bool      `json:"burn_after_read"`
-	Language      string    `json:"language"`
-	CreatedAt     time.Time `json:"created_at"`
-	ExpiresAt     time.Time `json:"expires_at"`
+	PK              int       `json:"-"`
+	ID              string    `json:"id"`
+	Text            string    `json:"text"`
+	BurnAfterRead   bool      `json:"burn_after_read"`
+	Language        string    `json:"language"`
+	HighlightedCode string    `json:"-"`
+	CreatedAt       time.Time `json:"created_at"`
+	ExpiresAt       time.Time `json:"expires_at"`
 }
 
 type SelectOption struct {
@@ -170,6 +174,12 @@ func (s *Store) GetSnippetByID(id string) (*Snippet, error) {
 	if expiresAt.Valid {
 		snippet.ExpiresAt = expiresAt.Time
 	}
+	highlightedCode, err := util.HighlightCode(snippet.Text, snippet.Language)
+	if err != nil {
+		logger.Error().Err(err).Msg("Failed to highlight code")
+		highlightedCode = snippet.Text
+	}
+	snippet.HighlightedCode = highlightedCode
 	s.cache.client.Put(id, &snippet)
 	return &snippet, nil
 }
@@ -184,6 +194,12 @@ func (s *Store) UpdateSnippet(snippet *Snippet) error {
 	if err != nil {
 		return err
 	}
+	highlightedCode, err := util.HighlightCode(snippet.Text, snippet.Language)
+	if err != nil {
+		logger.Error().Err(err).Msg("Failed to highlight code")
+		highlightedCode = snippet.Text
+	}
+	snippet.HighlightedCode = highlightedCode
 	s.cache.client.Put(snippet.ID, snippet)
 	return nil
 }

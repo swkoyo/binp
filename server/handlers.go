@@ -83,13 +83,7 @@ func (s *Server) HandleGetSnippet(c echo.Context) error {
 	if strings.Contains(accept, "application/json") {
 		return c.JSON(http.StatusOK, snippet)
 	} else {
-		highlightedCode, err := util.HighlightCode(snippet.Text, snippet.Language)
-		if err != nil {
-			logger.Error().Err(err).Msg("Error while highlighting code")
-			highlightedCode = snippet.Text
-		}
-
-		return Render(c, http.StatusOK, views.SnippetPage(snippet, highlightedCode))
+		return Render(c, http.StatusOK, views.SnippetPage(snippet))
 	}
 }
 
@@ -149,13 +143,7 @@ func (s *Server) HandlePostSnippet(c echo.Context) error {
 	if strings.Contains(accept, "application/json") {
 		return c.JSON(http.StatusCreated, snippet)
 	} else {
-		highlightedCode, err := util.HighlightCode(snippet.Text, snippet.Language)
-		if err != nil {
-			logger.Error().Err(err).Msg("Error while highlighting code")
-			highlightedCode = snippet.Text
-		}
-
 		c.Response().Header().Set("Hx-Push-Url", fmt.Sprintf("/%s", snippet.ID))
-		return Render(c, http.StatusCreated, views.PostSnippetResponse(snippet, highlightedCode))
+		return Render(c, http.StatusCreated, views.PostSnippetResponse(snippet))
 	}
 }

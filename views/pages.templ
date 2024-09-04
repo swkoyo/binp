@@ -59,7 +59,7 @@ templ Index() {
 	}
 }
 
-templ SnippetPage(snippet *storage.Snippet, highlightedCode string) {
+templ SnippetPage(snippet *storage.Snippet) {
 	@Base() {
 		@Navbar(templ.Attributes{}) {
 			@Button(
@@ -81,13 +81,13 @@ templ SnippetPage(snippet *storage.Snippet, highlightedCode string) {
 			<div hidden class="sr-only absolute" id="snippet-raw-text">{ snippet.Text }</div>
 			<div hidden class="sr-only absolute" id="snippet-id">{ snippet.ID }</div>
 			<div class="p-4">
-				@templ.Raw(highlightedCode)
+				@templ.Raw(snippet.HighlightedCode)
 			</div>
 		}
 	}
 }
 
-templ PostSnippetResponse(snippet *storage.Snippet, highlightedCode string) {
+templ PostSnippetResponse(snippet *storage.Snippet) {
 	@SuccessAlert("Snippet created successfully!")
 	@Navbar(templ.Attributes{"hx-swap-oob": "true"}) {
 		@Button(
@@ -109,7 +109,7 @@ templ PostSnippetResponse(snippet *storage.Snippet, highlightedCode string) {
 		<div hidden class="sr-only absolute" id="snippet-raw-text">{ snippet.Text }</div>
 		<div hidden class="sr-only absolute" id="snippet-id">{ snippet.ID }</div>
 		<div class="p-4">
-			@templ.Raw(highlightedCode)
+			@templ.Raw(snippet.HighlightedCode)
 		</div>
 	</div>
 	@SuccessAlert("Snippet created successfully!")
