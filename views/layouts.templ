@@ -7,11 +7,11 @@ templ Base() {
 			<meta charset="utf-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<title>binp</title>
-			<script src="https://unpkg.com/htmx.org@1.9.12"></script>
-			<script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/response-targets.js"></script>
-			<script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
-			<link rel="stylesheet" href="css/output.css"/>
-			<link rel="stylesheet" href="css/chroma.css"/>
+			<script src="https://unpkg.com/htmx.org@1.9.12" defer></script>
+			<script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/response-targets.js" defer></script>
+			<script src="https://unpkg.com/hyperscript.org@0.9.12" defer></script>
+			<link rel="stylesheet" href="css/output.css" defer/>
+			<link rel="stylesheet" href="css/chroma.css" defer/>
 			<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png"/>
 			<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png"/>
 			<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png"/>
@@ -19,7 +19,6 @@ templ Base() {
 		</head>
 		<body hx-ext="response-targets" class="dark bg-white dark:bg-gray-900 text-black dark:text-white flex min-h-screen h-screen">
 			{ children... }
-			<script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.1/dist/flowbite.min.js"></script>
 		</body>
 	</html>
 }

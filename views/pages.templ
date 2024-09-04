@@ -65,39 +65,17 @@ templ SnippetPage(snippet *storage.Snippet, highlightedCode string) {
 			@Button(
 				"Copy URL",
 				templ.Attributes{
-					"_":                      "on click writeText(window.location.origin + '/' + #snippet-id.innerText) into the navigator's clipboard",
-					"type":                   "button",
-					"data-tooltip-target":    "tooltip-copy-url",
-					"data-tooltip-trigger":   "click",
-					"data-tooltip-placement": "right",
+					"_":    "on click writeText(window.location.origin + '/' + #snippet-id.innerText) into the navigator's clipboard",
+					"type": "button",
 				},
 			)
-			<div
-				id="tooltip-copy-url"
-				role="tooltip"
-				class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
-			>
-				Copied URL!
-				<div class="tooltip-arrow" data-popper-arrow></div>
-			</div>
 			@Button(
 				"Copy Text",
 				templ.Attributes{
-					"_":                      "on click writeText(#snippet-raw-text.innerText) into the navigator's clipboard",
-					"type":                   "button",
-					"data-tooltip-target":    "tooltip-copy-text",
-					"data-tooltip-trigger":   "click",
-					"data-tooltip-placement": "right",
+					"_":    "on click writeText(#snippet-raw-text.innerText) into the navigator's clipboard",
+					"type": "button",
 				},
 			)
-			<div
-				id="tooltip-copy-text"
-				role="tooltip"
-				class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
-			>
-				Copied Text!
-				<div class="tooltip-arrow" data-popper-arrow></div>
-			</div>
 		}
 		@Container() {
 			<div hidden class="sr-only absolute" id="snippet-raw-text">{ snippet.Text }</div>
@@ -107,6 +85,34 @@ templ SnippetPage(snippet *storage.Snippet, highlightedCode string) {
 			</div>
 		}
 	}
+}
+
+templ PostSnippetResponse(snippet *storage.Snippet, highlightedCode string) {
+	@SuccessAlert("Snippet created successfully!")
+	@Navbar(templ.Attributes{"hx-swap-oob": "true"}) {
+		@Button(
+			"Copy URL",
+			templ.Attributes{
+				"_":    "on click writeText(window.location.origin + '/' + #snippet-id.innerText) into the navigator's clipboard",
+				"type": "button",
+			},
+		)
+		@Button(
+			"Copy Text",
+			templ.Attributes{
+				"_":    "on click writeText(#snippet-raw-text.innerText) into the navigator's clipboard",
+				"type": "button",
+			},
+		)
+	}
+	<div id="content" class="flex-grow">
+		<div hidden class="sr-only absolute" id="snippet-raw-text">{ snippet.Text }</div>
+		<div hidden class="sr-only absolute" id="snippet-id">{ snippet.ID }</div>
+		<div class="p-4">
+			@templ.Raw(highlightedCode)
+		</div>
+	</div>
+	@SuccessAlert("Snippet created successfully!")
 }
 
 templ NotFoundPage() {
