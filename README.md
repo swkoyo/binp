@@ -32,6 +32,7 @@ binp is built using the following technologies:
 ### Prerequisites
 
 - Go (version 1.22 or later)
+- Templ
 - Node.js and npm (for Tailwind CSS)
 - SQLite
 
